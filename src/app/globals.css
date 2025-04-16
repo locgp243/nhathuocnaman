@@ -132,3 +132,16 @@
     100% { transform: translateX(-100%); }
   }
 }
+
+body{
+  background-color: #EAEFFA;
+}
+
+.your-custom-scroll {
+  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.your-custom-scroll::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}

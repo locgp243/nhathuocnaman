@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
+import Link from "next/link";
 
 const menuData = [
   {
@@ -90,7 +91,7 @@ export default function Menu() {
 
             {/* Mega Menu for Thực phẩm chức năng */}
             {activeMenu === item.title && item.title === "Thực phẩm chức năng" && (
-              <div className="absolute left-0 top-full mt-2 w-[950px] bg-white border rounded-lg shadow-xl z-50 text-black flex">
+              <div className="absolute left-0 top-full mt-2 p-4 w-[950px] bg-white border rounded-lg shadow-xl z-50 text-black flex">
                 {/* Left: Category list */}
                 <div className="w-1/4 border-r bg-gray-50">
                   {item.sub.map((cat, idx) => (
@@ -126,8 +127,10 @@ export default function Menu() {
 
                   {/* Right: Best sellers */}
                   <div className="border-l p-4">
-                    <h4 className="text-sm font-semibold mb-2">Bán chạy nhất</h4>
-
+                    <div className="flex gap-2">
+                      <h4 className="text-sm font-semibold mb-2">Bán chạy nhất</h4> |
+                      <Link href="/san-pham" className="text-blue-600 text-sm font-medium mb-2 block">Xem tất cả</Link>
+                    </div>
                     <div className="flex space-y-3">
                       {bestSellers.map((product) => (
                         <div key={product.name} className="flex gap-3 items-center text-sm">

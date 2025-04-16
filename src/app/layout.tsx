@@ -4,6 +4,8 @@ import "./globals.css";
 import Topbar from "@/components/Topbar";
 import Header from "@/components/Header";
 import Menu from "@/components/Menu";
+import PromotionSection from "@/components/PromotionSection";
+// import PromotionProduct from "@/components/PromotionProduct";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +35,8 @@ export default function RootLayout({
         <Topbar />
         <Header />
         <Menu />
+        <PromotionSection />
+        {/* <PromotionProduct /> */}
         {children}
       </body>
     </html>
