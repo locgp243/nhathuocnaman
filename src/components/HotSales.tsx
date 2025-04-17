@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -10,10 +10,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 
 // Product type options
 type ProductType = "Hộp" | "Vỉ" | "Ống" | "Chai" | "Gói" | "Hũ" | "Lọ" | "Tuýp" | "Vỉ 10 viên" | "Vỉ 20 viên"
-
-// Subcategory types
-type TPCNSubcategory = "Bổ não" | "Tiêu hóa" | "Bổ mắt" | "Tăng cường miễn dịch" | "Bổ tim mạch" | "Vitamin tổng hợp"
-type ProductSubcategory = TPCNSubcategory
+type ProductCategory = "Thuốc kháng sinh" | "Vitamin" | "Thuốc giảm đau" | "Dụng cụ y tế"
 
 // Product interface
 interface Product {
@@ -21,7 +18,7 @@ interface Product {
   name: string
   image: string
   discount: number
-  subcategory: ProductSubcategory
+  category: ProductCategory
   // Only include price information for available types
   prices: Partial<{
     [key in ProductType]: {
@@ -40,7 +37,7 @@ const products: Product[] = [
     id: "1",
     name: "Hỗn dịch uống men vi sinh Enterogermina Gut Defense Sanofi tăng cường tiêu hóa, hỗ trợ bảo vệ đường ruột",
     image: "/images/sanpham1.webp",
-    subcategory: "Tiêu hóa",
+    category: "Vitamin",
     discount: 33,
     availableTypes: ["Hộp", "Vỉ", "Ống"],
     prices: {
@@ -53,9 +50,9 @@ const products: Product[] = [
   },
   {
     id: "2",
-    name: "Viên uống bổ não DHA Omega-3 hỗ trợ phát triển trí não và thị lực",
+    name: "Nước súc miệng Pearlie White Fluorinze Anti-bacterial Fluoride 750ml chống lại vi khuẩn gây mảng bám sâu răng",
     image: "/images/sanpham2.webp",
-    subcategory: "Bổ não",
+    category: "Thuốc kháng sinh",
     discount: 21,
     availableTypes: ["Chai", "Lọ"],
     prices: {
@@ -69,7 +66,7 @@ const products: Product[] = [
     id: "3",
     name: "Dung dịch MorningKids Increase Height bổ sung vitamin, tăng chiều cao cho trẻ (150ml)",
     image: "/images/sanpham3.webp",
-    subcategory: "Vitamin tổng hợp",
+    category: "Vitamin",
     discount: 19,
     availableTypes: ["Chai", "Hộp"],
     prices: {
@@ -81,9 +78,9 @@ const products: Product[] = [
   },
   {
     id: "4",
-    name: "Viên uống bổ mắt Lutein Zeaxanthin hỗ trợ thị lực và bảo vệ mắt",
+    name: "Máy xông khí dung nén khí Yuwell 403M chuyển thuốc dạng dung dịch thành sương mù cho niêm mạc hô hấp",
     image: "/images/sanpham4.webp",
-    subcategory: "Bổ mắt",
+    category: "Dụng cụ y tế",
     discount: 17,
     availableTypes: ["Hộp"],
     prices: {
@@ -96,7 +93,7 @@ const products: Product[] = [
     id: "5",
     name: "Siro Brauer Baby & Kids Liquid Zinc bổ sung kẽm, tăng sức đề kháng cho trẻ (200ml)",
     image: "/images/sanpham5.webp",
-    subcategory: "Tăng cường miễn dịch",
+    category: "Vitamin",
     discount: 18,
     availableTypes: ["Chai", "Lọ", "Hộp"],
     prices: {
@@ -109,11 +106,11 @@ const products: Product[] = [
   },
   {
     id: "6",
-    name: "Thực phẩm bảo vệ sức khỏe NMN PQQ hỗ trợ tim mạch và tuần hoàn",
+    name: "Thực phẩm bảo vệ sức khỏe NMN PQQ",
     image: "/images/sanpham6.webp",
-    subcategory: "Bổ tim mạch",
+    category: "Vitamin",
     discount: 18,
-    availableTypes: ["Hộp", "Gói", "Vỉ 10 viên", "Vỉ 20 viên"],
+    availableTypes: ["Hộp", "Gói", "Vỉ 10 viên"],
     prices: {
       Hộp: { original: 380000, discounted: 311600 },
       Gói: { original: 50000, discounted: 41000 },
@@ -125,17 +122,15 @@ const products: Product[] = [
   },
 ]
 
-// Subcategory filters
-const subcategories: ProductSubcategory[] = [
-  "Bổ não",
-  "Tiêu hóa",
-  "Bổ mắt",
-  "Tăng cường miễn dịch",
-  "Bổ tim mạch",
-  "Vitamin tổng hợp",
+// Category filters
+const categories: ProductCategory[] = [
+  "Thuốc kháng sinh",
+  "Vitamin",
+  "Thuốc giảm đau",
+  "Dụng cụ y tế",
 ]
 
-export default function ProductCategory() {
+export default function PharmaHotSale() {
   // Initialize selected types with the first available type for each product
   const [selectedTypes, setSelectedTypes] = useState<Record<string, ProductType>>(
     products.reduce(
@@ -147,7 +142,13 @@ export default function ProductCategory() {
     ),
   )
 
-  const [selectedSubcategory, setSelectedSubcategory] = useState<ProductSubcategory | "all">("all")
+  const [selectedCategory, setSelectedCategory] = useState<ProductCategory | "all">("all")
+
+  const [timeLeft, setTimeLeft] = useState({
+    hours: 0,
+    minutes: 10,
+    seconds: 44,
+  })
 
   // Update product type
   const updateProductType = (productId: string, type: ProductType) => {
@@ -162,25 +163,50 @@ export default function ProductCategory() {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
   }
 
-  // Filter products by subcategory
+  // Filter products by category
   const filteredProducts =
-    selectedSubcategory === "all" ? products : products.filter((product) => product.subcategory === selectedSubcategory)
+    selectedCategory === "all" ? products : products.filter((product) => product.category === selectedCategory)
+
+  // Countdown timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev.seconds > 0) {
+          return { ...prev, seconds: prev.seconds - 1 }
+        } else if (prev.minutes > 0) {
+          return { ...prev, minutes: prev.minutes - 1, seconds: 59 }
+        } else if (prev.hours > 0) {
+          return { hours: prev.hours - 1, minutes: 59, seconds: 59 }
+        }
+        return prev
+      })
+    }, 1000)
+
+
+    return () => clearInterval(timer)
+  }, [])
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
-      {/* Category Banner */}
+    <div className="max-w-7xl mx-auto px-4">
+      {/* Hot Sale Banner */}
       <div className="bg-[#309D94] text-white p-4 rounded-lg">
         <div className="flex flex-col md:flex-row justify-between items-center mb-4">
           <div className="flex items-center gap-2 mb-4 md:mb-0">
             <div className="bg-white rounded-full p-2">
-                <Image src="/images/thucphamchucnang.png" alt="Logo" width={24} height={24} className="object-contain" />
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z"
+                  fill="#FF385C"
+                />
+                <path d="M12.5 7H11V13L16.2 16.2L17 14.9L12.5 12.2V7Z" fill="#FF385C" />
+              </svg>
             </div>
-            <h2 className="text-2xl font-bold tracking-tight">Thực phẩm chức năng</h2>
+            <h2 className="text-2xl font-bold tracking-tight">HOT SALE CUỐI TUẦN</h2>
           </div>
 
           <Tabs
-            value={selectedSubcategory}
-            onValueChange={(value) => setSelectedSubcategory(value as ProductSubcategory | "all")}
+            value={selectedCategory}
+            onValueChange={(value) => setSelectedCategory(value as ProductCategory | "all")}
             className="w-full md:w-auto"
           >
             <TabsList className="bg-transparent h-auto flex flex-wrap gap-2">
@@ -190,17 +216,36 @@ export default function ProductCategory() {
               >
                 Tất cả
               </TabsTrigger>
-              {subcategories.map((subcategory) => (
+              {categories.map((category) => (
                 <TabsTrigger
-                  key={subcategory}
-                  value={subcategory}
+                  key={category}
+                  value={category}
                   className="bg-white text-gray-700 data-[state=active]:bg-rose-500 data-[state=active]:text-white"
                 >
-                  {subcategory}
+                  {category}
                 </TabsTrigger>
               ))}
             </TabsList>
           </Tabs>
+
+        </div>
+
+        {/* Countdown Timer */}
+        <div className="flex items-center justify-center md:justify-start gap-1 mb-4">
+          <span className="text-sm">Bắt đầu sau:</span>
+          <div className="flex items-center gap-1">
+            <span className="bg-amber-50 text-rose-600 rounded-full w-8 h-8 flex items-center justify-center font-bold">
+              {String(timeLeft.hours).padStart(2, "0")}
+            </span>
+            <span>:</span>
+            <span className="bg-amber-50 text-rose-600 rounded-full w-8 h-8 flex items-center justify-center font-bold">
+              {String(timeLeft.minutes).padStart(2, "0")}
+            </span>
+            <span>:</span>
+            <span className="bg-amber-50 text-rose-600 rounded-full w-8 h-8 flex items-center justify-center font-bold">
+              {String(timeLeft.seconds).padStart(2, "0")}
+            </span>
+          </div>
         </div>
 
         {/* Products Carousel */}
@@ -220,12 +265,12 @@ export default function ProductCategory() {
                 >
                   <Card className="bg-white text-black relative overflow-hidden h-full">
                     <Badge className="absolute top-2 left-2 bg-rose-500">Giảm {product.discount}%</Badge>
-                    <Badge className="absolute top-2 right-2 bg-blue-500">{product.subcategory}</Badge>
+                    <Badge className="absolute top-2 right-2 bg-blue-500">{product.category}</Badge>
 
                     <CardContent className="p-3">
                       <div className="flex justify-center mb-3">
                         <Image
-                          src={product.image || "/placeholder.svg?height=200&width=150"}
+                          src={product.image || ""}
                           alt={product.name}
                           width={150}
                           height={200}
@@ -280,10 +325,14 @@ export default function ProductCategory() {
             </CarouselContent>
             <CarouselPrevious className="left-1 w-12 h-12 rounded-full bg-rose-500 text-white shadow-md flex items-center justify-center hover:bg-rose-600" />
             <CarouselNext className="right-1 w-12 h-12 rounded-full bg-rose-500 text-white shadow-md flex items-center justify-center hover:bg-rose-600" />
+
           </Carousel>
         ) : (
-          <div className="text-center text-white py-10 text-sm">Không có sản phẩm nào được tìm thấy.</div>
+          <div className="text-center text-white py-10 text-sm">
+            Không có sản phẩm nào được tìm thấy.
+          </div>
         )}
+
       </div>
     </div>
   )

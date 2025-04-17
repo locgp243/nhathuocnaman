@@ -7,32 +7,32 @@ import { cn } from "@/lib/utils"
 
 const bannerTabs = [
   {
-    title: "MỪNG KHAI TRƯƠNG",
+    title: "Cần mua thuốc",
     description: "Ưu đãi cực khủng",
     image: "/images/banner-3.jpg",
   },
   {
-    title: "IPHONE 16 PRO MAX",
+    title: "Tư vấn với Dược Sĩ",
     description: "Lên đời ngay",
     image: "/images/slider-2.webp",
   },
   {
-    title: "OPPO FIND N5",
+    title: "Tìm nhà thuốc",
     description: "Ưu đãi tốt mua ngay",
     image: "/images/slider-3.webp",
   },
   {
-    title: "GALAXY S25 ULTRA",
+    title: "Đơn của tôi",
     description: "Giá tốt chốt ngay",
     image: "/images/slider-4.webp",
   },
   {
-    title: "MACBOOK AIR M4",
+    title: "Tiêm vaccine",
     description: "Mua ngay",
     image: "/images/slider-5.webp",
   },
   {
-    title: "MACBOOK AIR M5",
+    title: "Kiểm tra sức khỏe",
     description: "Mua ngay",
     image: "/images/slider-5.webp",
   },
@@ -164,7 +164,7 @@ export default function ProductShowcase() {
                 )}
               >
                 <div className="uppercase">{tab.title}</div>
-                <div className="text-xs">{tab.description}</div>
+                {/* <div className="text-xs">{tab.description}</div> */}
               </button>
             ))}
           </div>

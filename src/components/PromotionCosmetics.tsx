@@ -9,11 +9,11 @@ import { Badge } from "@/components/ui/badge"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 
 // Product type options
-type ProductType = "Hộp" | "Vỉ" | "Ống" | "Chai" | "Gói" | "Hũ" | "Lọ" | "Tuýp" | "Vỉ 10 viên" | "Vỉ 20 viên"
+type ProductType = "Hộp" | "Chai" | "Tuýp" | "Lọ" | "Gói" | "Set"
 
 // Subcategory types
-type TPCNSubcategory = "Bổ não" | "Tiêu hóa" | "Bổ mắt" | "Tăng cường miễn dịch" | "Bổ tim mạch" | "Vitamin tổng hợp"
-type ProductSubcategory = TPCNSubcategory
+type CosmeticSubcategory = "Dưỡng da" | "Sáng da" | "Rửa mặt" | "Chống nắng" | "Mặt nạ" | "Trang điểm"
+type ProductSubcategory = CosmeticSubcategory
 
 // Product interface
 interface Product {
@@ -34,91 +34,89 @@ interface Product {
   installment: boolean
 }
 
-// Sample pharmaceutical products with different available types
+// Sample cosmetic products with different available types
 const products: Product[] = [
   {
     id: "1",
-    name: "Hỗn dịch uống men vi sinh Enterogermina Gut Defense Sanofi tăng cường tiêu hóa, hỗ trợ bảo vệ đường ruột",
-    image: "/images/sanpham1.webp",
-    subcategory: "Tiêu hóa",
-    discount: 33,
-    availableTypes: ["Hộp", "Vỉ", "Ống"],
+    name: "Sữa rửa mặt Cetaphil Gentle Skin Cleanser làm sạch dịu nhẹ cho da nhạy cảm",
+    image: "/images/mypham1.webp",
+    subcategory: "Rửa mặt",
+    discount: 25,
+    availableTypes: ["Chai", "Tuýp"],
     prices: {
-      Hộp: { original: 120000, discounted: 80000 },
-      Vỉ: { original: 25000, discounted: 16750 },
-      Ống: { original: 15000, discounted: 10050 },
+      Chai: { original: 220000, discounted: 165000 },
+      Tuýp: { original: 120000, discounted: 90000 },
     },
     rating: 5,
     installment: true,
   },
   {
     id: "2",
-    name: "Viên uống bổ não DHA Omega-3 hỗ trợ phát triển trí não và thị lực",
-    image: "/images/sanpham2.webp",
-    subcategory: "Bổ não",
-    discount: 21,
-    availableTypes: ["Chai", "Lọ"],
+    name: "Serum Vitamin C Melano CC Intensive Anti-Spot Essence giúp làm mờ thâm nám",
+    image: "/images/mypham2.webp",
+    subcategory: "Sáng da",
+    discount: 20,
+    availableTypes: ["Lọ", "Set"],
     prices: {
-      Chai: { original: 350000, discounted: 276500 },
-      Lọ: { original: 280000, discounted: 221200 },
+      Lọ: { original: 350000, discounted: 280000 },
+      Set: { original: 650000, discounted: 520000 },
     },
     rating: 5,
     installment: true,
   },
   {
     id: "3",
-    name: "Dung dịch MorningKids Increase Height bổ sung vitamin, tăng chiều cao cho trẻ (150ml)",
-    image: "/images/sanpham3.webp",
-    subcategory: "Vitamin tổng hợp",
-    discount: 19,
-    availableTypes: ["Chai", "Hộp"],
+    name: "Kem chống nắng La Roche-Posay Anthelios XL SPF 50+ bảo vệ da khỏi tia UV",
+    image: "/images/mypham3.webp",
+    subcategory: "Chống nắng",
+    discount: 15,
+    availableTypes: ["Tuýp", "Chai"],
     prices: {
-      Chai: { original: 180000, discounted: 145800 },
-      Hộp: { original: 320000, discounted: 259200 },
+      Tuýp: { original: 420000, discounted: 357000 },
+      Chai: { original: 650000, discounted: 552500 },
     },
     rating: 5,
     installment: true,
   },
   {
     id: "4",
-    name: "Viên uống bổ mắt Lutein Zeaxanthin hỗ trợ thị lực và bảo vệ mắt",
-    image: "/images/sanpham4.webp",
-    subcategory: "Bổ mắt",
-    discount: 17,
-    availableTypes: ["Hộp"],
+    name: "Mặt nạ dưỡng ẩm Laneige Water Sleeping Mask cấp nước chuyên sâu qua đêm",
+    image: "/images/mypham4.webp",
+    subcategory: "Mặt nạ",
+    discount: 30,
+    availableTypes: ["Hộp", "Gói"],
     prices: {
-      Hộp: { original: 450000, discounted: 373500 },
+      Hộp: { original: 750000, discounted: 525000 },
+      Gói: { original: 50000, discounted: 35000 },
     },
     rating: 5,
     installment: true,
   },
   {
     id: "5",
-    name: "Siro Brauer Baby & Kids Liquid Zinc bổ sung kẽm, tăng sức đề kháng cho trẻ (200ml)",
-    image: "/images/sanpham5.webp",
-    subcategory: "Tăng cường miễn dịch",
+    name: "Kem dưỡng ẩm Neutrogena Hydro Boost Water Gel cấp nước cho da khô",
+    image: "/images/mypham5.webp",
+    subcategory: "Dưỡng da",
     discount: 18,
-    availableTypes: ["Chai", "Lọ", "Hộp"],
+    availableTypes: ["Hộp", "Lọ", "Tuýp"],
     prices: {
-      Chai: { original: 380000, discounted: 311600 },
+      Hộp: { original: 380000, discounted: 311600 },
       Lọ: { original: 320000, discounted: 262400 },
-      Hộp: { original: 450000, discounted: 369000 },
+      Tuýp: { original: 250000, discounted: 205000 },
     },
     rating: 5,
     installment: true,
   },
   {
     id: "6",
-    name: "Thực phẩm bảo vệ sức khỏe NMN PQQ hỗ trợ tim mạch và tuần hoàn",
-    image: "/images/sanpham6.webp",
-    subcategory: "Bổ tim mạch",
-    discount: 18,
-    availableTypes: ["Hộp", "Gói", "Vỉ 10 viên", "Vỉ 20 viên"],
+    name: "Phấn nền Maybelline Fit Me Matte + Poreless che phủ lỗ chân lông",
+    image: "/placeholder.svg?height=200&width=150",
+    subcategory: "Trang điểm",
+    discount: 22,
+    availableTypes: ["Hộp", "Set"],
     prices: {
-      Hộp: { original: 380000, discounted: 311600 },
-      Gói: { original: 50000, discounted: 41000 },
-      "Vỉ 10 viên": { original: 120000, discounted: 98400 },
-      "Vỉ 20 viên": { original: 220000, discounted: 180400 },
+      Hộp: { original: 220000, discounted: 171600 },
+      Set: { original: 450000, discounted: 351000 },
     },
     rating: 5,
     installment: true,
@@ -126,16 +124,9 @@ const products: Product[] = [
 ]
 
 // Subcategory filters
-const subcategories: ProductSubcategory[] = [
-  "Bổ não",
-  "Tiêu hóa",
-  "Bổ mắt",
-  "Tăng cường miễn dịch",
-  "Bổ tim mạch",
-  "Vitamin tổng hợp",
-]
+const subcategories: ProductSubcategory[] = ["Dưỡng da", "Sáng da", "Rửa mặt", "Chống nắng", "Mặt nạ", "Trang điểm"]
 
-export default function ProductCategory() {
+export default function CosmeticsCategory() {
   // Initialize selected types with the first available type for each product
   const [selectedTypes, setSelectedTypes] = useState<Record<string, ProductType>>(
     products.reduce(
@@ -167,15 +158,15 @@ export default function ProductCategory() {
     selectedSubcategory === "all" ? products : products.filter((product) => product.subcategory === selectedSubcategory)
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="max-w-7xl mx-auto px-4">
       {/* Category Banner */}
-      <div className="bg-[#309D94] text-white p-4 rounded-lg">
+      <div className="bg-[#309d94] text-white p-4 rounded-lg">
         <div className="flex flex-col md:flex-row justify-between items-center mb-4">
           <div className="flex items-center gap-2 mb-4 md:mb-0">
             <div className="bg-white rounded-full p-2">
-                <Image src="/images/thucphamchucnang.png" alt="Logo" width={24} height={24} className="object-contain" />
+              <Image src="/images/mypham.png" alt="Logo" width={24} height={24} className="object-contain" />
             </div>
-            <h2 className="text-2xl font-bold tracking-tight">Thực phẩm chức năng</h2>
+            <h2 className="text-2xl font-bold tracking-tight">Mỹ phẩm</h2>
           </div>
 
           <Tabs
@@ -278,8 +269,8 @@ export default function ProductCategory() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="left-1 w-12 h-12 rounded-full bg-rose-500 text-white shadow-md flex items-center justify-center hover:bg-rose-600" />
-            <CarouselNext className="right-1 w-12 h-12 rounded-full bg-rose-500 text-white shadow-md flex items-center justify-center hover:bg-rose-600" />
+            <CarouselPrevious className="left-1 w-12 h-12 rounded-full bg-rose-500 text-white shadow-md flex items-center justify-center hover:bg-purple-600" />
+            <CarouselNext className="right-1 w-12 h-12 rounded-full bg-rose-500 text-white shadow-md flex items-center justify-center hover:bg-purple-600" />
           </Carousel>
         ) : (
           <div className="text-center text-white py-10 text-sm">Không có sản phẩm nào được tìm thấy.</div>

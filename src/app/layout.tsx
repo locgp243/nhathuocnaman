@@ -5,7 +5,10 @@ import Topbar from "@/components/Topbar";
 import Header from "@/components/Header";
 import Menu from "@/components/Menu";
 import PromotionSection from "@/components/PromotionSection";
-// import PromotionProduct from "@/components/PromotionProduct";
+import HotSales from "@/components/HotSales";
+import ProductCategory from "@/components/PromotionProduct";
+import CosmeticsCategory from "@/components/PromotionCosmetics";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,7 +39,11 @@ export default function RootLayout({
         <Header />
         <Menu />
         <PromotionSection />
-        {/* <PromotionProduct /> */}
+        <HotSales />
+        <ProductCategory />
+        <CosmeticsCategory />
+        
+        {/* Main content */}
         {children}
       </body>
     </html>
