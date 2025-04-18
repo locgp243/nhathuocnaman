@@ -8,6 +8,8 @@ import PromotionSection from "@/components/PromotionSection";
 import HotSales from "@/components/HotSales";
 import ProductCategory from "@/components/PromotionProduct";
 import CosmeticsCategory from "@/components/PromotionCosmetics";
+import FeatureCategories from "@/components/FeatureCategories";
+import PromotionMedicine from "@/components/PromotionMedicine";
 
 
 const geistSans = Geist({
@@ -42,7 +44,8 @@ export default function RootLayout({
         <HotSales />
         <ProductCategory />
         <CosmeticsCategory />
-        
+        <FeatureCategories />
+        <PromotionMedicine />
         {/* Main content */}
         {children}
       </body>

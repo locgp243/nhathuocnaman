@@ -169,7 +169,7 @@ export default function ProductCategory() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
       {/* Category Banner */}
-      <div className="bg-[#309D94] text-white p-4 rounded-lg">
+      <div className="rounded-lg">
         <div className="flex flex-col md:flex-row justify-between items-center mb-4">
           <div className="flex items-center gap-2 mb-4 md:mb-0">
             <div className="bg-white rounded-full p-2">

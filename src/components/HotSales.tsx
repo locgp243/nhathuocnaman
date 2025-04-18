@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
+import CountdownTimer from "@/components/CountdownTime"
 
 // Product type options
 type ProductType = "Hộp" | "Vỉ" | "Ống" | "Chai" | "Gói" | "Hũ" | "Lọ" | "Tuýp" | "Vỉ 10 viên" | "Vỉ 20 viên"
@@ -144,11 +145,11 @@ export default function PharmaHotSale() {
 
   const [selectedCategory, setSelectedCategory] = useState<ProductCategory | "all">("all")
 
-  const [timeLeft, setTimeLeft] = useState({
-    hours: 0,
-    minutes: 10,
-    seconds: 44,
-  })
+  // const [timeLeft, setTimeLeft] = useState({
+  //   hours: 0,
+  //   minutes: 10,
+  //   seconds: 44,
+  // })
 
   // Update product type
   const updateProductType = (productId: string, type: ProductType) => {
@@ -168,23 +169,23 @@ export default function PharmaHotSale() {
     selectedCategory === "all" ? products : products.filter((product) => product.category === selectedCategory)
 
   // Countdown timer
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev.seconds > 0) {
-          return { ...prev, seconds: prev.seconds - 1 }
-        } else if (prev.minutes > 0) {
-          return { ...prev, minutes: prev.minutes - 1, seconds: 59 }
-        } else if (prev.hours > 0) {
-          return { hours: prev.hours - 1, minutes: 59, seconds: 59 }
-        }
-        return prev
-      })
-    }, 1000)
+  // useEffect(() => {
+  //   const timer = setInterval(() => {
+  //     setTimeLeft((prev) => {
+  //       if (prev.seconds > 0) {
+  //         return { ...prev, seconds: prev.seconds - 1 }
+  //       } else if (prev.minutes > 0) {
+  //         return { ...prev, minutes: prev.minutes - 1, seconds: 59 }
+  //       } else if (prev.hours > 0) {
+  //         return { hours: prev.hours - 1, minutes: 59, seconds: 59 }
+  //       }
+  //       return prev
+  //     })
+  //   }, 1000)
 
 
-    return () => clearInterval(timer)
-  }, [])
+  //   return () => clearInterval(timer)
+  // }, [])
 
   return (
     <div className="max-w-7xl mx-auto px-4">
@@ -231,7 +232,8 @@ export default function PharmaHotSale() {
         </div>
 
         {/* Countdown Timer */}
-        <div className="flex items-center justify-center md:justify-start gap-1 mb-4">
+        <CountdownTimer />
+        {/* <div className="flex items-center justify-center md:justify-start gap-1 mb-4">
           <span className="text-sm">Bắt đầu sau:</span>
           <div className="flex items-center gap-1">
             <span className="bg-amber-50 text-rose-600 rounded-full w-8 h-8 flex items-center justify-center font-bold">
@@ -246,7 +248,7 @@ export default function PharmaHotSale() {
               {String(timeLeft.seconds).padStart(2, "0")}
             </span>
           </div>
-        </div>
+        </div> */}
 
         {/* Products Carousel */}
         {filteredProducts.length > 0 ? (

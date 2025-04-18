@@ -9,11 +9,17 @@ import { Badge } from "@/components/ui/badge"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 
 // Product type options
-type ProductType = "Hộp" | "Chai" | "Tuýp" | "Lọ" | "Gói" | "Set"
+type ProductType = "Hộp" | "Vỉ" | "Ống" | "Chai" | "Gói" | "Hũ" | "Lọ" | "Tuýp" | "Vỉ 10 viên" | "Vỉ 20 viên"
 
-// Subcategory types
-type CosmeticSubcategory = "Dưỡng da" | "Sáng da" | "Rửa mặt" | "Chống nắng" | "Mặt nạ" | "Trang điểm"
-type ProductSubcategory = CosmeticSubcategory
+// Subcategory types for medications
+type MedicationSubcategory =
+  | "Thuốc kháng sinh"
+  | "Thuốc giảm đau"
+  | "Thuốc hạ sốt"
+  | "Thuốc tiêu hóa"
+  | "Thuốc tim mạch"
+  | "Thuốc hô hấp"
+type ProductSubcategory = MedicationSubcategory
 
 // Product interface
 interface Product {
@@ -34,89 +40,89 @@ interface Product {
   installment: boolean
 }
 
-// Sample cosmetic products with different available types
+// Sample pharmaceutical products with different available types
 const products: Product[] = [
   {
     id: "1",
-    name: "Sữa rửa mặt Cetaphil Gentle Skin Cleanser làm sạch dịu nhẹ cho da nhạy cảm",
-    image: "/images/mypham1.webp",
-    subcategory: "Rửa mặt",
-    discount: 25,
-    availableTypes: ["Chai", "Tuýp"],
+    name: "Amoxicillin 500mg điều trị nhiễm khuẩn đường hô hấp, tiết niệu, da và mô mềm",
+    image: "/images/thuockhangsinh.webp",
+    subcategory: "Thuốc kháng sinh",
+    discount: 15,
+    availableTypes: ["Hộp", "Vỉ"],
     prices: {
-      Chai: { original: 220000, discounted: 165000 },
-      Tuýp: { original: 120000, discounted: 90000 },
+      Hộp: { original: 120000, discounted: 102000 },
+      Vỉ: { original: 25000, discounted: 21250 },
     },
     rating: 5,
     installment: true,
   },
   {
     id: "2",
-    name: "Serum Vitamin C Melano CC Intensive Anti-Spot Essence giúp làm mờ thâm nám",
-    image: "/images/mypham2.webp",
-    subcategory: "Sáng da",
-    discount: 20,
-    availableTypes: ["Lọ", "Set"],
+    name: "Paracetamol 500mg giảm đau, hạ sốt hiệu quả cho người lớn và trẻ em trên 12 tuổi",
+    image: "/images/thuockhangsinh2.webp",
+    subcategory: "Thuốc hạ sốt",
+    discount: 10,
+    availableTypes: ["Hộp", "Vỉ", "Chai"],
     prices: {
-      Lọ: { original: 350000, discounted: 280000 },
-      Set: { original: 650000, discounted: 520000 },
+      Hộp: { original: 45000, discounted: 40500 },
+      Vỉ: { original: 12000, discounted: 10800 },
+      Chai: { original: 65000, discounted: 58500 },
     },
     rating: 5,
     installment: true,
   },
   {
     id: "3",
-    name: "Kem chống nắng La Roche-Posay Anthelios XL SPF 50+ bảo vệ da khỏi tia UV",
-    image: "/images/mypham3.webp",
-    subcategory: "Chống nắng",
-    discount: 15,
-    availableTypes: ["Tuýp", "Chai"],
+    name: "Omeprazole 20mg điều trị loét dạ dày, tá tràng và trào ngược dạ dày thực quản",
+    image: "/images/thuoctieuhoa.webp",
+    subcategory: "Thuốc tiêu hóa",
+    discount: 20,
+    availableTypes: ["Hộp", "Vỉ"],
     prices: {
-      Tuýp: { original: 420000, discounted: 357000 },
-      Chai: { original: 650000, discounted: 552500 },
+      Hộp: { original: 180000, discounted: 144000 },
+      Vỉ: { original: 35000, discounted: 28000 },
     },
     rating: 5,
     installment: true,
   },
   {
     id: "4",
-    name: "Mặt nạ dưỡng ẩm Laneige Water Sleeping Mask cấp nước chuyên sâu qua đêm",
-    image: "/images/mypham4.webp",
-    subcategory: "Mặt nạ",
-    discount: 30,
-    availableTypes: ["Hộp", "Gói"],
+    name: "Atorvastatin 10mg điều trị tăng cholesterol máu và phòng ngừa bệnh tim mạch",
+    image: "/images/thuoctimmach.webp",
+    subcategory: "Thuốc tim mạch",
+    discount: 12,
+    availableTypes: ["Hộp"],
     prices: {
-      Hộp: { original: 750000, discounted: 525000 },
-      Gói: { original: 50000, discounted: 35000 },
+      Hộp: { original: 250000, discounted: 220000 },
     },
     rating: 5,
     installment: true,
   },
   {
     id: "5",
-    name: "Kem dưỡng ẩm Neutrogena Hydro Boost Water Gel cấp nước cho da khô",
-    image: "/images/mypham5.webp",
-    subcategory: "Dưỡng da",
+    name: "Ibuprofen 400mg giảm đau, kháng viêm cho đau đầu, đau cơ và đau khớp",
+    image: "/images/thuocthankinh.webp",
+    subcategory: "Thuốc giảm đau",
     discount: 18,
-    availableTypes: ["Hộp", "Lọ", "Tuýp"],
+    availableTypes: ["Chai", "Vỉ", "Hộp"],
     prices: {
-      Hộp: { original: 380000, discounted: 311600 },
-      Lọ: { original: 320000, discounted: 262400 },
-      Tuýp: { original: 250000, discounted: 205000 },
+      Chai: { original: 85000, discounted: 69700 },
+      Vỉ: { original: 20000, discounted: 16400 },
+      Hộp: { original: 120000, discounted: 98400 },
     },
     rating: 5,
     installment: true,
   },
   {
     id: "6",
-    name: "Phấn nền Maybelline Fit Me Matte + Poreless che phủ lỗ chân lông",
-    image: "/placeholder.svg?height=200&width=150",
-    subcategory: "Trang điểm",
-    discount: 22,
-    availableTypes: ["Hộp", "Set"],
+    name: "Salbutamol 2mg điều trị hen phế quản, bệnh phổi tắc nghẽn mạn tính (COPD)",
+    image: "/images/thuochohap.webp",
+    subcategory: "Thuốc hô hấp",
+    discount: 15,
+    availableTypes: ["Hộp", "Vỉ"],
     prices: {
-      Hộp: { original: 220000, discounted: 171600 },
-      Set: { original: 450000, discounted: 351000 },
+      Hộp: { original: 150000, discounted: 127500 },
+      Vỉ: { original: 30000, discounted: 25500 },
     },
     rating: 5,
     installment: true,
@@ -124,9 +130,16 @@ const products: Product[] = [
 ]
 
 // Subcategory filters
-const subcategories: ProductSubcategory[] = ["Dưỡng da", "Sáng da", "Rửa mặt", "Chống nắng", "Mặt nạ", "Trang điểm"]
+const subcategories: ProductSubcategory[] = [
+  "Thuốc kháng sinh",
+  "Thuốc giảm đau",
+  "Thuốc hạ sốt",
+  "Thuốc tiêu hóa",
+  "Thuốc tim mạch",
+  "Thuốc hô hấp",
+]
 
-export default function CosmeticsCategory() {
+export default function PromotionMedicine() {
   // Initialize selected types with the first available type for each product
   const [selectedTypes, setSelectedTypes] = useState<Record<string, ProductType>>(
     products.reduce(
@@ -158,15 +171,25 @@ export default function CosmeticsCategory() {
     selectedSubcategory === "all" ? products : products.filter((product) => product.subcategory === selectedSubcategory)
 
   return (
-    <div className="max-w-7xl mx-auto px-4">
+    <div className="max-w-7xl mx-auto px-4 py-6">
       {/* Category Banner */}
       <div className="rounded-lg">
         <div className="flex flex-col md:flex-row justify-between items-center mb-4">
           <div className="flex items-center gap-2 mb-4 md:mb-0">
             <div className="bg-white rounded-full p-2">
-              <Image src="/images/mypham.png" alt="Logo" width={24} height={24} className="object-contain" />
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M19 3L5 3C3.89543 3 3 3.89543 3 5L3 19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z"
+                  stroke="#2563EB"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path d="M12 8V16" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M8 12H16" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </div>
-            <h2 className="text-2xl font-bold tracking-tight">Dược mỹ phẩm</h2>
+            <h2 className="text-2xl font-bold tracking-tight">Sản phẩm thuốc</h2>
           </div>
 
           <Tabs
@@ -253,7 +276,7 @@ export default function CosmeticsCategory() {
                       </div>
 
                       <div className="space-y-1">
-                        <p className="text-rose-600 font-bold">
+                        <p className="text-blue-600 font-bold">
                           {formatPrice(product.prices[selectedTypes[product.id]]?.discounted || 0)}₫
                         </p>
                         <p className="text-gray-500 text-sm line-through">
@@ -269,11 +292,11 @@ export default function CosmeticsCategory() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <CarouselPrevious className="left-1 w-12 h-12 rounded-full bg-rose-500 text-white shadow-md flex items-center justify-center hover:bg-purple-600" />
-            <CarouselNext className="right-1 w-12 h-12 rounded-full bg-rose-500 text-white shadow-md flex items-center justify-center hover:bg-purple-600" />
+            <CarouselPrevious className="left-1 w-12 h-12 rounded-full bg-rose-500 text-white shadow-md flex items-center justify-center hover:bg-rose-600" />
+            <CarouselNext className="right-1 w-12 h-12 rounded-full bg-rose-500 text-white shadow-md flex items-center justify-center hover:bg-rose-600" />
           </Carousel>
         ) : (
-          <div className="text-center text-white py-10 text-sm">Không có sản phẩm nào được tìm thấy.</div>
+          <div className="text-center text-gray-500 py-10 text-sm">Không có sản phẩm nào được tìm thấy.</div>
         )}
       </div>
     </div>

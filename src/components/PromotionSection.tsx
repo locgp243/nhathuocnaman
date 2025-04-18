@@ -84,15 +84,28 @@ export default function ProductShowcase() {
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
 
   useEffect(() => {
+    const scrollContainer = scrollRef.current
     const activeTab = tabRefs.current[currentBannerIndex]
-    if (activeTab) {
-      activeTab.scrollIntoView({
+  
+    if (scrollContainer && activeTab) {
+      const containerRect = scrollContainer.getBoundingClientRect()
+      const tabRect = activeTab.getBoundingClientRect()
+  
+      // Tính khoảng cách phần tử tab đến giữa container
+      const offset =
+        tabRect.left -
+        containerRect.left +
+        scrollContainer.scrollLeft -
+        containerRect.width / 2 +
+        tabRect.width / 2
+  
+      scrollContainer.scrollTo({
+        left: offset,
         behavior: "smooth",
-        inline: "center",
-        block: "nearest",
       })
     }
   }, [currentBannerIndex])
+  
 
 
   return (
@@ -116,7 +129,7 @@ export default function ProductShowcase() {
                   alt={`Banner ${index + 1}`}
                   fill
                   className="object-cover rounded-t-xl"
-                  priority={index === 0}
+                  // priority={index === 0}
                 />
               </div>
             ))}
