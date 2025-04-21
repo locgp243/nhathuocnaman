@@ -4,12 +4,7 @@ import "./globals.css";
 import Topbar from "@/components/Topbar";
 import Header from "@/components/Header";
 import Menu from "@/components/Menu";
-import PromotionSection from "@/components/PromotionSection";
-import HotSales from "@/components/HotSales";
-import ProductCategory from "@/components/PromotionProduct";
-import CosmeticsCategory from "@/components/PromotionCosmetics";
-import FeatureCategories from "@/components/FeatureCategories";
-import PromotionMedicine from "@/components/PromotionMedicine";
+import Footer from "@/components/Footer";
 
 
 const geistSans = Geist({
@@ -40,14 +35,9 @@ export default function RootLayout({
         <Topbar />
         <Header />
         <Menu />
-        <PromotionSection />
-        <HotSales />
-        <ProductCategory />
-        <CosmeticsCategory />
-        <FeatureCategories />
-        <PromotionMedicine />
         {/* Main content */}
         {children}
+        <Footer />
       </body>
     </html>
   );

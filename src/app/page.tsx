@@ -1,9 +1,26 @@
-import { Button } from "@/components/ui/button"
+import PromotionSection from "@/components/PromotionSection";
+import HotSales from "@/components/HotSales";
+import ProductCategory from "@/components/PromotionProduct";
+import CosmeticsCategory from "@/components/PromotionCosmetics";
+import FeatureCategories from "@/components/FeatureCategories";
+import PromotionMedicine from "@/components/PromotionMedicine";
+import ArticleNew from "@/components/ArticleNew";
+import Service from "@/components/Services";
+// import PartnersNetwork from "@/components/Partner";
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-        <Button>Click me!</Button>
-    </div>
+    <>
+        <PromotionSection />
+        <HotSales />
+        <ProductCategory />
+        <CosmeticsCategory />
+        <FeatureCategories />
+        <PromotionMedicine />
+        {/* <PartnersNetwork /> */}
+        <ArticleNew />
+        <Service />
+      
+    </>
   );
 }
