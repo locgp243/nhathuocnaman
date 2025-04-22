@@ -5,6 +5,7 @@ import { ChevronDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";
+import { slugify } from "@/lib/slugify"; // 🆕 import slugify
 
 const menuData = [
   {
@@ -59,7 +60,6 @@ const bestSellers = [
 export default function Menu() {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number>(0);
-
   const [hideTimeout, setHideTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const handleMouseEnter = (title: string) => {
@@ -73,7 +73,6 @@ export default function Menu() {
     }, 200);
     setHideTimeout(timeout);
   };
-
 
   return (
     <header className="bg-[#309d94] shadow-sm border-b z-50 relative sm:flex hidden">
@@ -89,7 +88,6 @@ export default function Menu() {
               {item.title} <ChevronDown size={14} />
             </button>
 
-            {/* Mega Menu for Thực phẩm chức năng */}
             {activeMenu === item.title && item.title === "Thực phẩm chức năng" && (
               <div className="absolute left-0 top-full mt-2 p-4 w-[950px] bg-white border rounded-lg shadow-xl z-50 text-black flex">
                 {/* Left: Category list */}
@@ -112,31 +110,44 @@ export default function Menu() {
                   <div className="p-4">
                     {item.sub[hoveredIndex]?.items?.length > 0 ? (
                       <div className="grid grid-cols-3 gap-4">
-                        {item.sub[hoveredIndex].items.map((subItem) => (
-                          <Card key={subItem} className="cursor-pointer hover:border-blue-500 transition">
-                            <CardContent className="p-4 text-sm text-gray-700 font-medium">
-                              {subItem}
-                            </CardContent>
-                          </Card>
-                        ))}
+                        {item.sub[hoveredIndex].items.map((subItem) => {
+                          const parentSlug = slugify(item.title);
+                          const childSlug = slugify(item.sub[hoveredIndex].title);
+                          const subSlug = slugify(subItem);
+
+                          return (
+                            <Link
+                              key={subItem}
+                              href={`/danh-muc/${parentSlug}/${childSlug}/${subSlug}`}
+                            >
+                              <Card className="cursor-pointer hover:border-blue-500 transition">
+                                <CardContent className="p-4 text-sm text-gray-700 font-medium">
+                                  {subItem}
+                                </CardContent>
+                              </Card>
+                            </Link>
+                          );
+                        })}
                       </div>
                     ) : (
                       <div className="text-sm text-gray-500">Không có nội dung</div>
                     )}
-                </div>
+                  </div>
 
                   {/* Right: Best sellers */}
                   <div className="border-l p-4">
                     <div className="flex gap-2">
                       <h4 className="text-sm font-semibold mb-2">Bán chạy nhất</h4> |
-                      <Link href="/san-pham" className="text-blue-600 text-sm font-medium mb-2 block">Xem tất cả</Link>
+                      <Link href="/san-pham" className="text-blue-600 text-sm font-medium mb-2 block">
+                        Xem tất cả
+                      </Link>
                     </div>
-                    <div className="flex space-y-3">
+                    <div className="flex flex-col space-y-3">
                       {bestSellers.map((product) => (
                         <div key={product.name} className="flex gap-3 items-center text-sm">
                           <Image
                             width={48}
-                            height={48} 
+                            height={48}
                             src={product.image}
                             alt={product.name}
                             className="w-12 h-12 object-cover rounded"
@@ -150,7 +161,6 @@ export default function Menu() {
                     </div>
                   </div>
                 </div>
-
               </div>
             )}
 
