@@ -39,7 +39,12 @@ export default function ArticleNew() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">BẢN TIN SỨC KHỎE</h2>
+        <div className="flex gap-2">
+        <div className="bg-white rounded-full p-2">
+          <Image src="/images/tintuc.png" alt="Logo" width={24} height={24} className="object-contain" />
+        </div>
+          <h2 className="text-2xl font-bold text-gray-800">BẢN TIN SỨC KHỎE</h2>
+        </div>
         <Link href="/thong-tin-benh" className="text-blue-600 hover:underline text-sm">
           Xem tất cả
         </Link>
