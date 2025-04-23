@@ -384,7 +384,7 @@ export default function PharmacyWebsite() {
         <div className="bg-white rounded-lg p-4">
           <div className="grid grid-cols-5 sm:grid-cols-5 md:grid-cols-10 gap-4">
             {categories.map((category) => (
-              <Link key={category.id} href={`/danh-muc/${category.href}`} className="flex flex-col items-center text-center group">
+              <Link key={category.id} href={`/danh-muc/thuc-pham-chuc-nang/${category.href}`} className="flex flex-col items-center text-center group">
                 <div className="mb-2">
                   <Image
                     src={category.icon || "/placeholder.svg"}

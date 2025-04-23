@@ -113,12 +113,12 @@ export default function Menu() {
                         {item.sub[hoveredIndex].items.map((subItem) => {
                           const parentSlug = slugify(item.title);
                           const childSlug = slugify(item.sub[hoveredIndex].title);
-                          const subSlug = slugify(subItem);
+                          // const subSlug = slugify(subItem);
 
                           return (
                             <Link
                               key={subItem}
-                              href={`/danh-muc/${parentSlug}/${childSlug}/${subSlug}`}
+                              href={`/danh-muc/${parentSlug}/${childSlug}`}
                             >
                               <Card className="cursor-pointer hover:border-blue-500 transition">
                                 <CardContent className="p-4 text-sm text-gray-700 font-medium">
