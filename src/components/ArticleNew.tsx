@@ -45,7 +45,7 @@ export default function ArticleNew() {
         </div>
           <h2 className="text-2xl font-bold text-gray-800">BẢN TIN SỨC KHỎE</h2>
         </div>
-        <Link href="/thong-tin-benh" className="text-blue-600 hover:underline text-sm">
+        <Link href="/tin-tuc/thong-tin-benh" className="text-blue-600 hover:underline text-sm">
           Xem tất cả
         </Link>
       </div>
