@@ -3,11 +3,9 @@
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Search, ShoppingCart, Bell, Menu, ChevronDown, } from 'lucide-react'
-import { Button } from "@/components/ui/button"
+import { Search } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 // import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
 
 interface HealthArticle {
   id: string
@@ -25,18 +23,19 @@ interface CategoryLink {
 }
 
 export default function PharmacityWebsite() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [searchQuery, setSearchQuery] = useState("")
 
   // Popular search terms
-  const popularSearches = [
-    "giảm cân",
-    "làm chống lão hóa",
-    "khỏi tràng",
-    "hạ sốt",
-    "Mua 1 Tặng 1",
-    "collagen",
-    "giảm ho đau họng",
-  ]
+  // const popularSearches = [
+  //   "giảm cân",
+  //   "làm chống lão hóa",
+  //   "khỏi tràng",
+  //   "hạ sốt",
+  //   "Mua 1 Tặng 1",
+  //   "collagen",
+  //   "giảm ho đau họng",
+  // ]
 
   // Health articles
   const healthArticles: HealthArticle[] = [
@@ -145,85 +144,85 @@ export default function PharmacityWebsite() {
   ]
 
   // Hospital links
-  const hospitalLinks = [
-    {
-      title: "Những Điều Cần Biết Về Khám Chữa Bệnh Hiện Đại Năm 2025",
-      href: "/benh-vien/kham-chua-benh-hien-dai",
-    },
-    {
-      title: "Phòng Khám Chuyên Khoa: Địa Chỉ Tin Cậy Cho Sức Khỏe",
-      href: "/benh-vien/phong-kham-chuyen-khoa",
-    },
-    {
-      title: "Tổng quan những điều cần biết về Bệnh viện Phạm Ngọc Thạch",
-      href: "/benh-vien/pham-ngoc-thach",
-    },
-  ]
+  // const hospitalLinks = [
+  //   {
+  //     title: "Những Điều Cần Biết Về Khám Chữa Bệnh Hiện Đại Năm 2025",
+  //     href: "/benh-vien/kham-chua-benh-hien-dai",
+  //   },
+  //   {
+  //     title: "Phòng Khám Chuyên Khoa: Địa Chỉ Tin Cậy Cho Sức Khỏe",
+  //     href: "/benh-vien/phong-kham-chuyen-khoa",
+  //   },
+  //   {
+  //     title: "Tổng quan những điều cần biết về Bệnh viện Phạm Ngọc Thạch",
+  //     href: "/benh-vien/pham-ngoc-thach",
+  //   },
+  // ]
 
   // Children's health links
-  const childrenHealthLinks = [
-    {
-      title: "5 cách bắt giun kim ở hậu môn cho bé hiệu quả tại nhà",
-      href: "/suc-khoe-tre-em/bat-giun-kim",
-    },
-    {
-      title: "Tập cho bé bú mẹ trở lại: cách hiệu quả và dễ dàng",
-      href: "/suc-khoe-tre-em/tap-cho-be-bu-me",
-    },
-    {
-      title: "Cách nấu cháo ăn dặm cho bé 7 tháng tuổi",
-      href: "/suc-khoe-tre-em/chao-an-dam",
-    },
-  ]
+  // const childrenHealthLinks = [
+  //   {
+  //     title: "5 cách bắt giun kim ở hậu môn cho bé hiệu quả tại nhà",
+  //     href: "/suc-khoe-tre-em/bat-giun-kim",
+  //   },
+  //   {
+  //     title: "Tập cho bé bú mẹ trở lại: cách hiệu quả và dễ dàng",
+  //     href: "/suc-khoe-tre-em/tap-cho-be-bu-me",
+  //   },
+  //   {
+  //     title: "Cách nấu cháo ăn dặm cho bé 7 tháng tuổi",
+  //     href: "/suc-khoe-tre-em/chao-an-dam",
+  //   },
+  // ]
 
   // Postpartum recovery links
-  const postpartumLinks = [
-    {
-      title: "Dấu hiệu sắp sinh con thứ 2: những điều mẹ bầu cần biết",
-      href: "/phuc-hoi-sau-sinh/dau-hieu-sap-sinh-con-thu-2",
-    },
-    {
-      title: "Giục sinh ở tuần 39 của thai kỳ: có nên áp dụng?",
-      href: "/phuc-hoi-sau-sinh/giuc-sinh-tuan-39",
-    },
-    {
-      title: "Chuẩn bị đồ đi sinh mổ lần 2: đảm bảo quá trình sinh con suôn sẻ",
-      href: "/phuc-hoi-sau-sinh/chuan-bi-do-sinh-mo-lan-2",
-    },
-  ]
+  // const postpartumLinks = [
+  //   {
+  //     title: "Dấu hiệu sắp sinh con thứ 2: những điều mẹ bầu cần biết",
+  //     href: "/phuc-hoi-sau-sinh/dau-hieu-sap-sinh-con-thu-2",
+  //   },
+  //   {
+  //     title: "Giục sinh ở tuần 39 của thai kỳ: có nên áp dụng?",
+  //     href: "/phuc-hoi-sau-sinh/giuc-sinh-tuan-39",
+  //   },
+  //   {
+  //     title: "Chuẩn bị đồ đi sinh mổ lần 2: đảm bảo quá trình sinh con suôn sẻ",
+  //     href: "/phuc-hoi-sau-sinh/chuan-bi-do-sinh-mo-lan-2",
+  //   },
+  // ]
 
   // Footer links
-  const aboutLinks = [
-    { title: "Giới thiệu", href: "/gioi-thieu" },
-    { title: "Hệ thống cửa hàng", href: "/he-thong-cua-hang" },
-    { title: "Giấy phép kinh doanh", href: "/giay-phep-kinh-doanh" },
-    { title: "Quy chế hoạt động", href: "/quy-che-hoat-dong" },
-    { title: "Chính sách đổi trả và bảo hành", href: "/chinh-sach-doi-tra" },
-    { title: "Chính sách giao hàng", href: "/chinh-sach-giao-hang" },
-    { title: "Chính sách bảo mật", href: "/chinh-sach-bao-mat" },
-    { title: "Chính sách bảo vệ dữ liệu cá nhân", href: "/chinh-sach-bao-ve-du-lieu" },
-    { title: "Chính sách thanh toán", href: "/chinh-sach-thanh-toan" },
-    { title: "Thế lệ chương trình thẻ thành viên", href: "/the-thanh-vien" },
-    { title: "Câu hỏi thường gặp", href: "/cau-hoi-thuong-gap" },
-    { title: "Sitemap", href: "/sitemap" },
-    { title: "Bệnh viện", href: "/benh-vien" },
-  ]
+  // const aboutLinks = [
+  //   { title: "Giới thiệu", href: "/gioi-thieu" },
+  //   { title: "Hệ thống cửa hàng", href: "/he-thong-cua-hang" },
+  //   { title: "Giấy phép kinh doanh", href: "/giay-phep-kinh-doanh" },
+  //   { title: "Quy chế hoạt động", href: "/quy-che-hoat-dong" },
+  //   { title: "Chính sách đổi trả và bảo hành", href: "/chinh-sach-doi-tra" },
+  //   { title: "Chính sách giao hàng", href: "/chinh-sach-giao-hang" },
+  //   { title: "Chính sách bảo mật", href: "/chinh-sach-bao-mat" },
+  //   { title: "Chính sách bảo vệ dữ liệu cá nhân", href: "/chinh-sach-bao-ve-du-lieu" },
+  //   { title: "Chính sách thanh toán", href: "/chinh-sach-thanh-toan" },
+  //   { title: "Thế lệ chương trình thẻ thành viên", href: "/the-thanh-vien" },
+  //   { title: "Câu hỏi thường gặp", href: "/cau-hoi-thuong-gap" },
+  //   { title: "Sitemap", href: "/sitemap" },
+  //   { title: "Bệnh viện", href: "/benh-vien" },
+  // ]
 
-  const categoryMenuLinks = [
-    { title: "Thuốc", href: "/thuoc" },
-    { title: "Trà cúc bệnh", href: "/tra-cuc-benh" },
-    { title: "Thực phẩm bảo vệ sức khỏe", href: "/thuc-pham-bao-ve-suc-khoe" },
-    { title: "Chăm sóc cá nhân", href: "/cham-soc-ca-nhan" },
-    { title: "Mẹ và Bé", href: "/me-va-be" },
-    { title: "Chăm sóc sắc đẹp", href: "/cham-soc-sac-dep" },
-    { title: "Thiết bị y tế", href: "/thiet-bi-y-te" },
-    { title: "Sản phẩm tiện lợi", href: "/san-pham-tien-loi" },
-    { title: "Doanh nghiệp", href: "/doanh-nghiep" },
-    { title: "Nhãn hàng Pharmacitty", href: "/nhan-hang-pharmacitty" },
-    { title: "Khuyến mãi HOT", href: "/khuyen-mai-hot" },
-    { title: "Góc sức khỏe", href: "/goc-suc-khoe" },
-    { title: "Chăm sóc sức khỏe", href: "/cham-soc-suc-khoe" },
-  ]
+  // const categoryMenuLinks = [
+  //   { title: "Thuốc", href: "/thuoc" },
+  //   { title: "Trà cúc bệnh", href: "/tra-cuc-benh" },
+  //   { title: "Thực phẩm bảo vệ sức khỏe", href: "/thuc-pham-bao-ve-suc-khoe" },
+  //   { title: "Chăm sóc cá nhân", href: "/cham-soc-ca-nhan" },
+  //   { title: "Mẹ và Bé", href: "/me-va-be" },
+  //   { title: "Chăm sóc sắc đẹp", href: "/cham-soc-sac-dep" },
+  //   { title: "Thiết bị y tế", href: "/thiet-bi-y-te" },
+  //   { title: "Sản phẩm tiện lợi", href: "/san-pham-tien-loi" },
+  //   { title: "Doanh nghiệp", href: "/doanh-nghiep" },
+  //   { title: "Nhãn hàng Pharmacitty", href: "/nhan-hang-pharmacitty" },
+  //   { title: "Khuyến mãi HOT", href: "/khuyen-mai-hot" },
+  //   { title: "Góc sức khỏe", href: "/goc-suc-khoe" },
+  //   { title: "Chăm sóc sức khỏe", href: "/cham-soc-suc-khoe" },
+  // ]
 
   return (
     <div className="min-h-screen bg-gray-100">
