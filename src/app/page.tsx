@@ -6,8 +6,7 @@ import FeatureCategories from "@/components/FeatureCategories";
 import PromotionMedicine from "@/components/PromotionMedicine";
 import ArticleNew from "@/components/ArticleNew";
 import Service from "@/components/Services";
-import RotatingPartnersNetwork from "@/components/Partner";
-
+import Partner from "@/components/Partner";
 export default function Home() {
   return (
     <>
@@ -17,10 +16,9 @@ export default function Home() {
         <CosmeticsCategory />
         <FeatureCategories />
         <PromotionMedicine />
-        <RotatingPartnersNetwork/>
-        <ArticleNew />
         <Service />
-      
+        <ArticleNew />
+        <Partner />
     </>
   );
 }

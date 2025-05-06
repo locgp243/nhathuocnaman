@@ -82,7 +82,7 @@ export default function Header() {
             <div className="flex items-center gap-1">
               <ShoppingCart size={24} />
               <p>
-                Giỏ<br/>hàng
+                <Link href="/gio-hang">Giỏ<br/>hàng</Link>
               </p>
             </div>
             <div className="flex items-center gap-1 bg-[#1EAFA5] hover:bg-white/20 hover:text-black px-3 py-1 rounded-md text-white">

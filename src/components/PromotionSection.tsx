@@ -9,22 +9,22 @@ const bannerTabs = [
   {
     title: "Cần mua thuốc",
     description: "Ưu đãi cực khủng",
-    image: "/images/banner-3.jpg",
+    image: "/images/banner-1.webp",
   },
   {
     title: "Tư vấn với Dược Sĩ",
     description: "Lên đời ngay",
-    image: "/images/slider-2.webp",
+    image: "/images/banner-6.jpg",
   },
   {
     title: "Tìm nhà thuốc",
     description: "Ưu đãi tốt mua ngay",
-    image: "/images/slider-3.webp",
+    image: "/images/banner-7.jpg",
   },
   {
     title: "Đơn của tôi",
     description: "Giá tốt chốt ngay",
-    image: "/images/slider-4.webp",
+    image: "/images/banner-8.jpg",
   },
   {
     title: "Tiêm vaccine",
