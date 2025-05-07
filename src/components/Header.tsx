@@ -88,7 +88,7 @@ export default function Header() {
             <div className="flex items-center gap-1 bg-[#1EAFA5] hover:bg-white/20 hover:text-black px-3 py-1 rounded-md text-white">
               <User size={24} />
               <p>
-                Đăng <br/> nhập
+                <Link href="/dang-nhap">Tài khoản<br/>của tôi</Link>
               </p>
             </div>
           </div>
