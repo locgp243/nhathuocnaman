@@ -5,6 +5,8 @@ import Image from "next/image"
 import { Trash2, Minus, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import { useRouter } from "next/navigation"
+
 
 interface CartItem {
   id: string
@@ -17,6 +19,8 @@ interface CartItem {
 }
 
 export default function ShoppingCart() {
+  const router = useRouter()
+  
   const [cartItems, setCartItems] = useState<CartItem[]>([
     {
       id: "1",
@@ -246,7 +250,9 @@ export default function ShoppingCart() {
                   <span className="text-xl font-bold text-red-500">{formatPrice(total)} đ</span>
                 </div>
 
-                <Button className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md">
+                <Button className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md"
+                  onClick={() => router.push("/thanh-toan")}
+                >
                   Mua hàng ({cartItems.length})
                 </Button>
               </div>
