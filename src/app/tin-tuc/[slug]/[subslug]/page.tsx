@@ -88,6 +88,7 @@ export default function PostDetailPage({ params }: { params: {
     };
 
     fetchPostData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.slug, API_BASE_URL]);
 
   if (isLoading) {

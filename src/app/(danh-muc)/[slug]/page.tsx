@@ -181,6 +181,7 @@ export default function PharmacyWebsite() {
       initialSelectedTypes[product.id] = product.availableTypes[0]
     })
     setSelectedTypes(initialSelectedTypes)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const updateProductType = (productId: string, type: string) => {

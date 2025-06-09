@@ -352,6 +352,7 @@ export default function HomeHotSaleProducts() {
   useEffect(() => {
     loadSubcategories()
     loadProducts()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // === MAIN RENDER ===
