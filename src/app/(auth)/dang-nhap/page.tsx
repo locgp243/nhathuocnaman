@@ -1,4 +1,5 @@
 import { LoginForm } from "@/components/FormLogin"
+import { Link } from "lucide-react"
 
 export default function LoginPage() {
   return (
@@ -9,9 +10,9 @@ export default function LoginPage() {
         <LoginForm />
         <p className="text-center mt-4 text-sm text-gray-500">
           Chưa có tài khoản?{" "}
-          <a href="/dang-ky" className="text-blue-500 hover:underline">
+          <Link href="/dang-ky" className="text-blue-500 hover:underline">
             Đăng ký ngay
-          </a>
+          </Link>
         </p>
       </div>
     </div>
