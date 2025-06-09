@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useParams } from "next/navigation";
+// import { useParams } from "next/navigation";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbList } from "@/components/ui/breadcrumb"
 
 // Product interface
@@ -33,12 +33,12 @@ interface Brand {
 }
 
 export default function PharmacyWebsitePage() {
-  const title = localStorage.getItem("title_main_categories")
-  const subTitle = localStorage.getItem("title_sub_categories")
-  const params = useParams();
-  const { slug, subslug } = params;
-  console.log("Main Category Slug:", slug);
-  console.log("Subcategory Slug:", subslug);
+  // const title = localStorage.getItem("title_main_categories")
+  // const subTitle = localStorage.getItem("title_sub_categories")
+  // const params = useParams();
+  // const { slug, subslug } = params;
+  // console.log("Main Category Slug:", slug);
+  // console.log("Subcategory Slug:", subslug);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [location, setLocation] = useState("Quận 10, Hồ Chí Minh")
   const [activeTab, setActiveTab] = useState("tim-kiem-nhieu")
@@ -234,12 +234,12 @@ export default function PharmacyWebsitePage() {
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink href="/${slug}"
-              >{title}</BreadcrumbLink>
+              >{}</BreadcrumbLink>
             </BreadcrumbItem>
               <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink href="/${slug}"
-              >{subTitle}</BreadcrumbLink>
+              >{}</BreadcrumbLink>
             </BreadcrumbItem>
           </BreadcrumbList> 
         </Breadcrumb>

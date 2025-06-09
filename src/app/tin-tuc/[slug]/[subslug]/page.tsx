@@ -203,4 +203,4 @@ export default async function PostDetailPage({ params }: Props) {
       </div>
     </div>
   );
-}
+} 
