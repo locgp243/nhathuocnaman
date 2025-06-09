@@ -234,6 +234,7 @@ export default function ShoppingCart() {
                   <span className="text-gray-600">Tạm tính</span>
                   <span className="font-medium">{formatPrice(subtotal)} đ</span>
                 </div>
+                
                 <div className="flex justify-between">
                   <span className="text-gray-600">Giảm giá ưu đãi</span>
                   <span>-</span>

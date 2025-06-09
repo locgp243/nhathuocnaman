@@ -1,24 +1,39 @@
-import PromotionSection from "@/components/PromotionSection";
-import HotSales from "@/components/HotSales";
-import ProductCategory from "@/components/PromotionProduct";
-import CosmeticsCategory from "@/components/PromotionCosmetics";
-import FeatureCategories from "@/components/FeatureCategories";
-import PromotionMedicine from "@/components/PromotionMedicine";
-import ArticleNew from "@/components/ArticleNew";
+import HomeBanner from "@/components/HomeBanner";
+import HomeSubCategories from "@/components/HomeSubCategories";
 import Service from "@/components/Services";
-import Partner from "@/components/Partner";
+import HomeRecommendProducts from "@/components/HomeRecommendProduct";
+import HomeHotSaleProducts from "@/components/HomeHotSaleProducts";
+import HomeProductCarouselCards from "@/components/HomeProductCarouselCards";
+import HomeArticles from "@/components/HomeArticles";
 export default function Home() {
   return (
     <>
-        <PromotionSection />
-        <HotSales />
-        <ProductCategory />
-        <CosmeticsCategory />
-        <FeatureCategories />
-        <PromotionMedicine />
+        <HomeBanner />
+        <HomeHotSaleProducts />
+        <HomeSubCategories />
+        <HomeRecommendProducts />
+        <HomeProductCarouselCards
+          mainCategorySlug="thuc-pham-chuc-nang"
+          title="THỰC PHẨM CHỨC NĂNG"
+          icon="/images/thucphamchucnang.png"
+        />
+        <HomeProductCarouselCards
+          mainCategorySlug="duoc-my-pham"
+          title="DƯỢC MỸ PHẨM"
+          icon="/images/duocmypham.png"
+        />
+        <HomeProductCarouselCards
+          mainCategorySlug="thuoc"
+          title="THUỐC"
+          icon="/images/thuoc.png"
+        />
+        <HomeProductCarouselCards
+          mainCategorySlug="thiet-bi-y-te"
+          title="THIẾT BỊ Y TẾ"
+          icon="/images/thietbiyte.png"
+        />
+      <HomeArticles />
         <Service />
-        <ArticleNew />
-        <Partner />
     </>
   );
 }

@@ -1,12 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
+import { Skeleton } from "@/components/ui/skeleton"
+
 
 // Product type options
 type ProductType = "Hộp" | "Vỉ" | "Ống" | "Chai" | "Gói" | "Hũ" | "Lọ" | "Tuýp" | "Vỉ 10 viên" | "Vỉ 20 viên"
@@ -20,136 +22,65 @@ interface Product {
   id: string
   name: string
   image: string
+  slug: string
+  price: string
   discount: number
-  subcategory: ProductSubcategory
-  // Only include price information for available types
+  category: string
   prices: Partial<{
     [key in ProductType]: {
       original: number
       discounted: number
     }
   }>
-  availableTypes: ProductType[] // List of available types for this product
+  availableTypes: ProductType[]
   rating: number
   installment: boolean
+  category_name: string
+  subcategory_name: string
+  main_category_name: string
 }
 
-// Sample pharmaceutical products with different available types
-const products: Product[] = [
-  {
-    id: "1",
-    name: "Hỗn dịch uống men vi sinh Enterogermina Gut Defense Sanofi tăng cường tiêu hóa, hỗ trợ bảo vệ đường ruột",
-    image: "/images/sanpham1.webp",
-    subcategory: "Tiêu hóa",
-    discount: 33,
-    availableTypes: ["Hộp", "Vỉ", "Ống"],
-    prices: {
-      Hộp: { original: 120000, discounted: 80000 },
-      Vỉ: { original: 25000, discounted: 16750 },
-      Ống: { original: 15000, discounted: 10050 },
-    },
-    rating: 5,
-    installment: true,
-  },
-  {
-    id: "2",
-    name: "Viên uống bổ não DHA Omega-3 hỗ trợ phát triển trí não và thị lực",
-    image: "/images/sanpham2.webp",
-    subcategory: "Bổ não",
-    discount: 21,
-    availableTypes: ["Chai", "Lọ"],
-    prices: {
-      Chai: { original: 350000, discounted: 276500 },
-      Lọ: { original: 280000, discounted: 221200 },
-    },
-    rating: 5,
-    installment: true,
-  },
-  {
-    id: "3",
-    name: "Dung dịch MorningKids Increase Height bổ sung vitamin, tăng chiều cao cho trẻ (150ml)",
-    image: "/images/sanpham3.webp",
-    subcategory: "Vitamin tổng hợp",
-    discount: 19,
-    availableTypes: ["Chai", "Hộp"],
-    prices: {
-      Chai: { original: 180000, discounted: 145800 },
-      Hộp: { original: 320000, discounted: 259200 },
-    },
-    rating: 5,
-    installment: true,
-  },
-  {
-    id: "4",
-    name: "Viên uống bổ mắt Lutein Zeaxanthin hỗ trợ thị lực và bảo vệ mắt",
-    image: "/images/sanpham4.webp",
-    subcategory: "Bổ mắt",
-    discount: 17,
-    availableTypes: ["Hộp"],
-    prices: {
-      Hộp: { original: 450000, discounted: 373500 },
-    },
-    rating: 5,
-    installment: true,
-  },
-  {
-    id: "5",
-    name: "Siro Brauer Baby & Kids Liquid Zinc bổ sung kẽm, tăng sức đề kháng cho trẻ (200ml)",
-    image: "/images/sanpham5.webp",
-    subcategory: "Tăng cường miễn dịch",
-    discount: 18,
-    availableTypes: ["Chai", "Lọ", "Hộp"],
-    prices: {
-      Chai: { original: 380000, discounted: 311600 },
-      Lọ: { original: 320000, discounted: 262400 },
-      Hộp: { original: 450000, discounted: 369000 },
-    },
-    rating: 5,
-    installment: true,
-  },
-  {
-    id: "6",
-    name: "Thực phẩm bảo vệ sức khỏe NMN PQQ hỗ trợ tim mạch và tuần hoàn",
-    image: "/images/sanpham6.webp",
-    subcategory: "Bổ tim mạch",
-    discount: 18,
-    availableTypes: ["Hộp", "Gói", "Vỉ 10 viên", "Vỉ 20 viên"],
-    prices: {
-      Hộp: { original: 380000, discounted: 311600 },
-      Gói: { original: 50000, discounted: 41000 },
-      "Vỉ 10 viên": { original: 120000, discounted: 98400 },
-      "Vỉ 20 viên": { original: 220000, discounted: 180400 },
-    },
-    rating: 5,
-    installment: true,
-  },
-]
-
-// Subcategory filters
-const subcategories: ProductSubcategory[] = [
-  "Bổ não",
-  "Tiêu hóa",
-  "Bổ mắt",
-  "Tăng cường miễn dịch",
-  "Bổ tim mạch",
-  "Vitamin tổng hợp",
-]
+interface Subcategory {
+  id: string
+  name: string
+  slug: string
+}
 
 export default function ProductCategory() {
-  // Initialize selected types with the first available type for each product
-  const [selectedTypes, setSelectedTypes] = useState<Record<string, ProductType>>(
-    products.reduce(
-      (acc, product) => ({
-        ...acc,
-        [product.id]: product.availableTypes[0],
-      }),
-      {},
-    ),
-  )
-
+  const [products, setProducts] = useState<Product[]>([])
+  const [selectedTypes, setSelectedTypes] = useState<Record<string, ProductType>>({})
   const [selectedSubcategory, setSelectedSubcategory] = useState<ProductSubcategory | "all">("all")
+  const [subcategories, setSubcategories] = useState<Subcategory[]>([])
+  const [loading, setLoading] = useState(true)
 
-  // Update product type
+  
+    useEffect(() => {
+      fetch("http://localhost/server/get_sub_category_by_main.php?main_category=thuc-pham-chuc-nang")
+        .then(res => res.json())
+        .then(data => setSubcategories(data))
+        .catch(err => console.error("Lỗi khi tải danh mục phụ:", err))
+    }, [])
+
+  useEffect(() => {
+    setLoading(true)
+
+    fetch("http://localhost/server/get_product_by_main_category.php?main_category=thuc-pham-chuc-nang")
+      .then((res) => res.json())
+      .then((data) => {
+        setProducts(data)
+        const defaultTypes: Record<string, ProductType> = {}
+        data.forEach((p: Product) => {
+          if (p.availableTypes?.length > 0) {
+            defaultTypes[p.id] = p.availableTypes[0]
+          }
+        })
+        setSelectedTypes(defaultTypes)
+      })
+      .catch((err) => console.error("Lỗi khi tải sản phẩm:", err))
+      .finally(() => setLoading(false))
+
+  }, [])
+
   const updateProductType = (productId: string, type: ProductType) => {
     setSelectedTypes((prev) => ({
       ...prev,
@@ -157,23 +88,22 @@ export default function ProductCategory() {
     }))
   }
 
-  // Format price with comma separators
   const formatPrice = (price: number) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
   }
 
-  // Filter products by subcategory
   const filteredProducts =
-    selectedSubcategory === "all" ? products : products.filter((product) => product.subcategory === selectedSubcategory)
+    selectedSubcategory === "all"
+      ? products
+      : products.filter((product) => product.subcategory_name === selectedSubcategory)
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
-      {/* Category Banner */}
       <div className="rounded-lg">
         <div className="flex flex-col md:flex-row justify-between items-center mb-4">
           <div className="flex items-center gap-2 mb-4 md:mb-0">
             <div className="bg-white rounded-full p-2">
-                <Image src="/images/thucphamchucnang.png" alt="Logo" width={24} height={24} className="object-contain" />
+              <Image src="/images/thucphamchucnang.png" alt="Logo" width={24} height={24} className="object-contain" />
             </div>
             <h2 className="text-2xl font-bold tracking-tight">Thực phẩm chức năng</h2>
           </div>
@@ -190,28 +120,47 @@ export default function ProductCategory() {
               >
                 Tất cả
               </TabsTrigger>
-              {subcategories.map((subcategory) => (
+              {subcategories.slice(0, 5).map((subcategory) => (
                 <TabsTrigger
-                  key={subcategory}
-                  value={subcategory}
+                  key={subcategory.id}
+                  value={subcategory.name}
                   className="bg-white text-gray-700 data-[state=active]:bg-rose-500 data-[state=active]:text-white"
                 >
-                  {subcategory}
+                  {subcategory.name}
                 </TabsTrigger>
               ))}
             </TabsList>
           </Tabs>
         </div>
 
-        {/* Products Carousel */}
-        {filteredProducts.length > 0 ? (
-          <Carousel
-            opts={{
-              align: "start",
-              loop: true,
-            }}
-            className="w-full"
-          >
+        {loading ? (
+          <Carousel className="w-full">
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {[...Array(5)].map((_, index) => (
+                <CarouselItem
+                  key={index}
+                  className="basis-1/2 pl-2 md:pl-4 sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
+                >
+                  <Card className="bg-white h-full">
+                    <CardContent className="p-3 space-y-3">
+                      <Skeleton className="w-full h-[150px] rounded" />
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                      <div className="flex gap-2">
+                        <Skeleton className="h-8 w-16" />
+                        <Skeleton className="h-8 w-16" />
+                      </div>
+                      <Skeleton className="h-5 w-1/2" />
+                      <Skeleton className="h-5 w-1/3" />
+                      <Skeleton className="h-10 w-full" />
+                    </CardContent>
+                  </Card>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
+          ) : filteredProducts.length > 0 ? (
+          <Carousel opts={{ align: "start", loop: true }} className="w-full">
             <CarouselContent className="-ml-2 md:-ml-4">
               {filteredProducts.map((product) => (
                 <CarouselItem
@@ -220,12 +169,12 @@ export default function ProductCategory() {
                 >
                   <Card className="bg-white text-black relative overflow-hidden h-full">
                     <Badge className="absolute top-2 left-2 bg-rose-500">Giảm {product.discount}%</Badge>
-                    <Badge className="absolute top-2 right-2 bg-blue-500">{product.subcategory}</Badge>
+                    <Badge className="absolute top-2 right-2 bg-blue-500">{product.subcategory_name}</Badge>
 
                     <CardContent className="p-3">
                       <div className="flex justify-center mb-3">
                         <Image
-                          src={product.image || "/placeholder.svg?height=200&width=150"}
+                          src={product.image || "/placeholder.svg"}
                           alt={product.name}
                           width={150}
                           height={200}

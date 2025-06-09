@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useParams } from "next/navigation";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbList } from "@/components/ui/breadcrumb"
 
 // Product interface
 interface Product {
@@ -31,6 +33,12 @@ interface Brand {
 }
 
 export default function PharmacyWebsitePage() {
+  const title = localStorage.getItem("title_main_categories")
+  const subTitle = localStorage.getItem("title_sub_categories")
+  const params = useParams();
+  const { slug, subslug } = params;
+  console.log("Main Category Slug:", slug);
+  console.log("Subcategory Slug:", subslug);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [location, setLocation] = useState("Quận 10, Hồ Chí Minh")
   const [activeTab, setActiveTab] = useState("tim-kiem-nhieu")
@@ -199,7 +207,6 @@ export default function PharmacyWebsitePage() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Top promotion banner */}
       <div className="bg-yellow-200 py-2 relative overflow-hidden">
         <div className="container mx-auto px-4 flex items-center justify-between">
           <button className="text-gray-600">
@@ -219,11 +226,29 @@ export default function PharmacyWebsitePage() {
 
       {/* Main content */}
       <main className="container mx-auto px-4 py-4">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/">Trang chủ</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/${slug}"
+              >{title}</BreadcrumbLink>
+            </BreadcrumbItem>
+              <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/${slug}"
+              >{subTitle}</BreadcrumbLink>
+            </BreadcrumbItem>
+          </BreadcrumbList> 
+        </Breadcrumb>
+
         {/* Page title */}
         <h1 className="text-xl font-bold mb-4">55 Sản phẩm làm đẹp, giảm cân</h1>
 
         {/* Filter options */}
-        <div className="bg-white rounded-md p-3 mb-4">
+        <div className="rounded-md p-3 mb-4">
           <div className="flex flex-wrap gap-2">
             <button className="flex items-center border border-gray-300 rounded px-3 py-1 text-sm">
               <svg
