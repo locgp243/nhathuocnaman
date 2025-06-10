@@ -73,9 +73,15 @@ async function getPostData(slug: string, subslug: string) {
 }
 
 // --- COMPONENT CHÍNH ---
-// SỬA LỖI TẠI ĐÂY: Định nghĩa props trực tiếp trong hàm
-export default async function PostDetailPage({ params }: { params: { slug: string; subslug: string } }) {
-  const { post, relatedPosts } = await getPostData(params.slug, params.subslug);
+// SỬA LỖI: Await params trước khi sử dụng (Next.js 15)
+export default async function PostDetailPage({ 
+  params 
+}: { 
+  params: Promise<{ slug: string; subslug: string }> 
+}) {
+  // Await params trước khi sử dụng
+  const resolvedParams = await params;
+  const { post, relatedPosts } = await getPostData(resolvedParams.slug, resolvedParams.subslug);
   
   const primaryCategory = post.categories?.[0];
 
@@ -86,9 +92,9 @@ export default async function PostDetailPage({ params }: { params: { slug: strin
         <div className="flex items-center text-sm text-muted-foreground mb-6">
           <Link href="/" className="hover:text-primary">Trang chủ</Link>
           <span className="mx-2">/</span>
-          <Link href={`/tin-tuc/${params.slug}`} className="hover:text-primary capitalize">
+          <Link href={`/tin-tuc/${resolvedParams.slug}`} className="hover:text-primary capitalize">
             {/* Sử dụng title từ API nếu có, nếu không thì dùng slug */}
-            {primaryCategory?.title || params.slug.replace(/-/g, ' ')}
+            {primaryCategory?.title || resolvedParams.slug.replace(/-/g, ' ')}
           </Link>
           <span className="mx-2">/</span>
           <span className="truncate max-w-xs">{post.title}</span>

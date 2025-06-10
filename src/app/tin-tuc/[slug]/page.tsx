@@ -163,7 +163,7 @@ export default function HealthCornerPage() {
           <div className="lg:col-span-2 space-y-8">
             {/* Hero Article */}
             {heroArticle && (
-                <Link href={`/goc-suc-khoe/${heroArticle.slug}`} legacyBehavior>
+                <Link href={`/tin-tuc/goc-suc-khoe/${heroArticle.slug}`} legacyBehavior>
                     <a className="block group bg-white rounded-lg shadow-sm overflow-hidden">
                         <div className="relative aspect-video">
                             <Image src={heroArticle.image_url || "/images/placeholder-large.jpg"} alt={heroArticle.title} fill className="object-cover"/>
