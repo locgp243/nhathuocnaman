@@ -57,7 +57,7 @@ export default function Menu() {
   const menuRefs = useRef<(HTMLDivElement | null)[]>([])
 
   useEffect(() => {
-    fetch("http://nhathuoc.trafficnhanh.com/categories.php?")
+    fetch("https://nhathuoc.trafficnhanh.com/categories.php?")
       .then((res) => res.json())
       .then((data: MenuMain[]) => {
         const mergedData = data.map((apiItem) => {
