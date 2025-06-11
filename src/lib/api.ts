@@ -1,4 +1,4 @@
-export const API_BASE_URL = "http://localhost/server"
+export const API_BASE_URL = "http://nhathuoc.trafficnhanh.com/"
 
 export const API_ENDPOINTS = {
   MAIN_BANNER: `${API_BASE_URL}/get_banners.php?position=main`,

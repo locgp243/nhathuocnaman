@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
-    domains: ['via.placeholder.com'], // 👈 thêm domain này
+    domains: ['via.placeholder.com', 'nhathuoc.trafficnhanh.com'], // 👈 thêm domain này
   },
 };
 

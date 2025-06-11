@@ -1,7 +1,7 @@
 // components/ProductCarouselByMainCategory.tsx
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react" // Thêm useCallback
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -9,33 +9,16 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
 import { Skeleton } from "@/components/ui/skeleton"
+import { API_BASE_URL } from "@/lib/api"
 
-type ProductType = "Hộp" | "Vỉ" | "Ống" | "Chai" | "Gói" | "Hũ" | "Lọ" | "Tuýp" | "Vỉ 10 viên" | "Vỉ 20 viên"
+// 1. IMPORT DỮ LIỆU GIẢ TỪ FILE MOCK-DATA
+// Dữ liệu này sẽ được dùng như một phương án dự phòng.
+import { mockProducts, Product, ProductType, CategoryInfo } from "@/lib/mock-data"
 
-interface Product {
-  id: string
-  name: string
-  image: string
-  slug: string
-  price: string
-  discount: number
-  category: string
-  prices: Partial<{
-    [key in ProductType]: { original: number; discounted: number }
-  }>
-  availableTypes: ProductType[]
-  rating: number
-  installment: boolean
-  category_name: string
-  subcategory_name: string
-  main_category_name: string
-}
 
-interface Subcategory {
-  id: string
-  name: string
-  slug: string
-}
+// Interface cho Subcategory có thể dùng CategoryInfo từ mock-data
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface Subcategory extends CategoryInfo {}
 
 interface Props {
   mainCategorySlug: string
@@ -50,25 +33,83 @@ export default function HomeProductCarouselCards({ mainCategorySlug, title, icon
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>("all")
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    setLoading(true)
-    Promise.all([
-      fetch(`http://localhost/server/get_product_by_main_category.php?main_category=${mainCategorySlug}`).then(res => res.json()),
-      fetch(`http://localhost/server/get_sub_category_by_main.php?main_category=${mainCategorySlug}`).then(res => res.json())
-    ])
-      .then(([productData, subcategoryData]) => {
-        setProducts(productData)
-        setSubcategories(subcategoryData)
+  // 2. TẠO MỘT HÀM DÙNG CHUNG ĐỂ XỬ LÝ DỮ LIỆU
+  // Giúp tránh lặp lại code trong cả trường hợp gọi API thành công và thất bại.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const processAndSetData = useCallback((productData: Product[], subcategoryData: Subcategory[]) => {
+    // Lọc sản phẩm theo mainCategorySlug (cần thiết khi dùng mock data)
+    const relevantProducts = productData.filter(p => p.main_category_slug === mainCategorySlug);
+    setProducts(relevantProducts);
 
-        const defaultTypes: Record<string, ProductType> = {}
-        productData.forEach((p: Product) => {
-          if (p.availableTypes.length > 0) defaultTypes[p.id] = p.availableTypes[0]
-        })
-        setSelectedTypes(defaultTypes)
-      })
-      .catch(err => console.error("Lỗi khi tải dữ liệu:", err))
-      .finally(() => setLoading(false))
-  }, [mainCategorySlug])
+    // Lấy danh mục con từ dữ liệu sản phẩm đã lọc
+    const relevantSubcategoriesMap = new Map<string, Subcategory>();
+    relevantProducts.forEach(p => {
+        if (!relevantSubcategoriesMap.has(p.subcategory_name)) {
+            relevantSubcategoriesMap.set(p.subcategory_name, {
+                name: p.subcategory_name,
+                slug: p.subcategory_slug,
+            });
+        }
+    });
+    setSubcategories(Array.from(relevantSubcategoriesMap.values()));
+    
+    // Set loại sản phẩm mặc định
+    const defaultTypes: Record<string, ProductType> = {};
+    relevantProducts.forEach((p) => {
+      if (p.availableTypes && p.availableTypes.length > 0) {
+        defaultTypes[p.id] = p.availableTypes[0];
+      }
+    });
+    setSelectedTypes(defaultTypes);
+  }, [mainCategorySlug]);
+
+
+  // 3. CẬP NHẬT useEffect VỚI LOGIC TRY/CATCH ĐỂ DÙNG DỮ LIỆU DỰ PHÒNG
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        // Ưu tiên gọi API thật
+        const [productResponse, subcategoryResponse] = await Promise.all([
+          fetch(`${API_BASE_URL}/get_product_by_main_category.php?main_category=${mainCategorySlug}`),
+          fetch(`${API_BASE_URL}/get_sub_category_by_main.php?main_category=${mainCategorySlug}`)
+        ]);
+
+        if (!productResponse.ok || !subcategoryResponse.ok) {
+            // Nếu một trong hai API lỗi, sẽ nhảy vào khối catch
+            throw new Error('API request failed');
+        }
+
+        const productData = await productResponse.json();
+        const subcategoryData = await subcategoryResponse.json();
+
+        // Nếu API trả về mảng rỗng, cũng có thể coi là một trường hợp cần fallback
+        if (productData.length === 0) {
+            throw new Error('API returned no products');
+        }
+
+        console.log("✅ Dữ liệu được tải từ API thật.");
+        processAndSetData(productData, subcategoryData);
+
+      } catch (error) {
+        // NẾU GỌI API THẤT BẠI (lỗi mạng, server sập, ...), SẼ DÙNG DỮ LIỆU GIẢ
+        console.warn("⚠️ Lỗi khi tải dữ liệu từ API, sử dụng dữ liệu giả (mock data) làm phương án dự phòng.", error);
+        
+        // Dùng hàm xử lý chung với mock data
+        // Trong mock-data.ts, chúng ta đã có mockSubcategories, nhưng ở đây ta sẽ tự tính lại để đảm bảo logic
+        const fallbackSubcategories = Array.from(new Set(mockProducts.map(p => p.subcategory_name)))
+            .map(name => ({ id: name, name, slug: name.toLowerCase().replace(/ /g, '-') }));
+            
+        processAndSetData(mockProducts, fallbackSubcategories);
+
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [mainCategorySlug, processAndSetData]);
+
 
   const updateProductType = (productId: string, type: ProductType) => {
     setSelectedTypes((prev) => ({ ...prev, [productId]: type }))
@@ -81,6 +122,7 @@ export default function HomeProductCarouselCards({ mainCategorySlug, title, icon
     ? products
     : products.filter(p => p.subcategory_name === selectedSubcategory)
 
+  // --- PHẦN GIAO DIỆN JSX GIỮ NGUYÊN ---
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
       <div className="flex flex-col md:flex-row justify-between items-center mb-4">
@@ -107,7 +149,7 @@ export default function HomeProductCarouselCards({ mainCategorySlug, title, icon
             </TabsTrigger>
             {subcategories.slice(0, 5).map((subcategory) => (
               <TabsTrigger
-                key={subcategory.id}
+                key={subcategory.slug} // Dùng slug để đảm bảo key là duy nhất
                 value={subcategory.name}
                 className="bg-[#E5E7EB] text-[#333333] data-[state=active]:bg-[#F43F5E] data-[state=active]:text-white"
               >
@@ -142,7 +184,7 @@ export default function HomeProductCarouselCards({ mainCategorySlug, title, icon
           </CarouselContent>
         </Carousel>
       ) : filteredProducts.length > 0 ? (
-        <Carousel opts={{ align: "start", loop: true }} className="w-full">
+        <Carousel opts={{ align: "start", loop: filteredProducts.length > 5 }} className="w-full">
           <CarouselContent className="-ml-2 md:-ml-4">
             {filteredProducts.map(product => (
               <CarouselItem key={product.id} className="basis-1/2 pl-2 md:pl-4 sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5">

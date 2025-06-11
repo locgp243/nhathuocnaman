@@ -5,6 +5,7 @@ import { ChevronDown } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import Image from "next/image"
 import Link from "next/link"
+import { API_BASE_URL } from "@/lib/api"
 
 // --- Interfaces (giữ nguyên như lần cập nhật trước) ---
 interface Product {
@@ -56,7 +57,7 @@ export default function Menu() {
   const menuRefs = useRef<(HTMLDivElement | null)[]>([])
 
   useEffect(() => {
-    fetch("http://localhost/server/categories.php")
+    fetch("http://nhathuoc.trafficnhanh.com/categories.php?")
       .then((res) => res.json())
       .then((data: MenuMain[]) => {
         const mergedData = data.map((apiItem) => {
@@ -200,8 +201,8 @@ export default function Menu() {
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-6 h-6 bg-blue-200 rounded-full flex items-center justify-center flex-shrink-0">
-                        {cat.image_url ? (
-                          <Image width={18} height={18} src={cat.image_url} alt={cat.title} className="rounded-full object-cover" />
+                        {cat.image_url !== null ? (
+                          <Image width={18} height={18} src={`${API_BASE_URL}${cat.image_url}`} alt={cat.title} className="rounded-full object-cover" />
                         ) : (
                           <span className="text-blue-700 text-xs font-medium">
                             {cat.title.charAt(0)}
@@ -234,8 +235,8 @@ export default function Menu() {
                                   <CardContent className="p-4">
                                     <div className="flex items-center gap-3">
                                       <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                                        {menuItem.image_url ? (
-                                          <Image width={24} height={24} src={menuItem.image_url} alt={menuItem.title} className="rounded-lg object-cover"/>
+                                        {menuItem.image_url !== null ? (
+                                          <Image width={24} height={24} src={`${API_BASE_URL}${menuItem.image_url}`} alt={menuItem.title} className="rounded-lg object-cover"/>
                                         ): (
                                           <span className="text-white text-xs font-medium">
                                            {menuItem.title.charAt(0)}

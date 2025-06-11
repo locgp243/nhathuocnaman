@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import type { Post as PostType, PostCategory } from "@/types/ArticleCard"
-
+import { API_BASE_URL } from "@/lib/api"
 // Mở rộng interface Post để bao gồm cả content
 interface PostDetail extends PostType {
   content: string;
@@ -20,7 +20,7 @@ const RelatedPostCard = ({ post }: { post: PostType }) => (
     <Card className="h-full overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
       <div className="relative aspect-video">
         <Image
-          src={post.image_url || "/images/placeholder.jpg"}
+          src={`${API_BASE_URL}${post.image_url || "/images/placeholder.jpg"}`}
           alt={post.title}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -38,7 +38,6 @@ const RelatedPostCard = ({ post }: { post: PostType }) => (
 
 // --- HÀM LẤY DỮ LIỆU TRÊN SERVER ---
 async function getPostData(slug: string, subslug: string) {
-  const API_BASE_URL = process.env.API_URL || "http://localhost/server";
   try {
     // 1. Fetch bài viết chính
     const postRes = await fetch(`${API_BASE_URL}/posts.php?action=doc_chi_tiet&slug=${subslug}`, {

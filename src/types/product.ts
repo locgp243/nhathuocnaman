@@ -17,7 +17,7 @@ export interface Product {
   slug: string
   price: string
   discount: number
-  category: string
+  // category: string
   prices: Partial<{
     [key in ProductType]: {
       original: number

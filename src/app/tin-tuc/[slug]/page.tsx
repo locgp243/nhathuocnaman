@@ -6,7 +6,7 @@ import Link from "next/link"
 import { Search } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import type { Post, PostCategory } from "@/types/ArticleCard" // Đảm bảo đường dẫn đúng
-
+import { API_BASE_URL } from "@/lib/api"
 // Component con cho một bài viết trong lưới
 const ArticleCard = ({ article }: { article: Post }) => (
   <Link href={`/goc-suc-khoe/${article.slug}`} legacyBehavior>
@@ -21,7 +21,7 @@ const ArticleCard = ({ article }: { article: Post }) => (
         )}
         <div className="aspect-video relative">
           <Image
-            src={article.image_url || "/images/placeholder.jpg"}
+            src={`${API_BASE_URL}${article.image_url || "/images/placeholder.jpg"}`}
             alt={article.title}
             fill
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
@@ -42,7 +42,7 @@ const SidebarArticle = ({ article }: { article: Post }) => (
   <Link href={`/goc-suc-khoe/${article.slug}`} className="flex group gap-3 items-center">
     <div className="w-20 h-20 flex-shrink-0 relative">
       <Image
-        src={article.image_url || "/images/placeholder.jpg"}
+        src={`${API_BASE_URL}${article.image_url || "/images/placeholder.jpg"}`}
         alt={article.title}
         fill
         className="w-full h-full object-cover rounded-md"
@@ -58,7 +58,6 @@ const SidebarArticle = ({ article }: { article: Post }) => (
 
 
 export default function HealthCornerPage() {
-  const API_BASE_URL = "http://localhost/server"; // Thay đổi nếu cần
 
   // State cho các loại dữ liệu khác nhau trên trang
   const [heroArticle, setHeroArticle] = useState<Post | null>(null);
@@ -87,11 +86,11 @@ export default function HealthCornerPage() {
           sidebarFeaturedRes,
           ...categorySectionsRes
         ] = await Promise.all([
-          fetch(`${API_BASE_URL}/posts.php?action=read_posts&featured=true&limit=1`),
-          fetch(`${API_BASE_URL}/posts.php?action=read_posts&limit=7`), // 1 hero + 6 general
+          fetch(`${API_BASE_URL}/posts.php?action=doc&featured=true&limit=1`),
+          fetch(`${API_BASE_URL}/posts.php?action=doc&limit=7`), // 1 hero + 6 general
           fetch(`${API_BASE_URL}/categories.php?action=read_post_subcategories`),
-          fetch(`${API_BASE_URL}/posts.php?action=read_posts&featured=true&limit=3`),
-          ...categoriesToFetch.map(cat => fetch(`${API_BASE_URL}/posts.php?action=read_posts&category_slug=${cat.slug}&limit=4`))
+          fetch(`${API_BASE_URL}/posts.php?action=doc&featured=true&limit=3`),
+          ...categoriesToFetch.map(cat => fetch(`${API_BASE_URL}/posts.php?action=doc&category_slug=${cat.slug}&limit=4`))
         ]);
 
         // Xử lý kết quả
@@ -121,6 +120,7 @@ export default function HealthCornerPage() {
     };
 
     fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [API_BASE_URL]);
 
   if (isLoading) {

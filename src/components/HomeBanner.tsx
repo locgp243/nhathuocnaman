@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Banner } from "@/types/banner"
-import { API_ENDPOINTS } from "@/lib/api"
+import { API_BASE_URL, API_ENDPOINTS } from "@/lib/api"
 
 // Mock data - thay thế bằng API call thực tế
 const MOCK_MAIN_BANNERS: Banner[] = [
@@ -251,7 +251,7 @@ export default function HomeBanner() {
                 )}
               >
                 <Image
-                  src={banner.image}
+                  src={`${API_BASE_URL}${banner.image}`}
                   alt={banner.title}
                   fill
                   className="object-cover rounded-t-xl"
@@ -316,7 +316,7 @@ export default function HomeBanner() {
               className="relative w-full flex-1 group cursor-pointer"
             >
               <Image
-                src={banner.image}
+                src={`${API_BASE_URL}${banner.image}`}
                 alt={banner.title}
                 fill
                 className="object-cover rounded-2xl shadow-lg"

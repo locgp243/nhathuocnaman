@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-
+import { API_BASE_URL } from '@/lib/api'; // Giả sử bạn đã định nghĩa API_BASE_URL trong config
 // --- Types (Không đổi) ---
 interface PostCategory {
   id: string;
@@ -90,7 +90,7 @@ const ArticleItemCard = ({ article }: { article: Post }) => (
             <div className="flex gap-4">
                 <div className="w-28 h-24 relative flex-shrink-0">
                     <Image
-                        src={article.image_url || "/api/placeholder/150/100"}
+                        src={`${API_BASE_URL}${article.image_url || "/api/placeholder/150/100"}`}
                         alt={article.title}
                         fill
                         className="object-cover rounded-md"
@@ -148,17 +148,16 @@ const HomeArticles = () => {
   const [activeCategorySlug, setActiveCategorySlug] = useState("featured");
   const [isLoading, setIsLoading] = useState(true);
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost/server";
-
   // Fetch danh mục (Không đổi)
   useEffect(() => {
-    fetch(`${API_BASE_URL}/categories.php?action=read_post_subcategories`)
+    fetch(`${API_BASE_URL}/categories.php?action=doc_danh_muc_bai_viet`)
       .then((res) => res.json())
       .then((data: PostCategory[]) => {
         const featuredCategory: PostCategory = { id: "0", title: "Bài viết nổi bật", slug: "featured" };
         setCategories([featuredCategory, ...data]);
       })
       .catch((err) => console.error("Lỗi khi tải danh mục:", err));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [API_BASE_URL]);
 
   // Fetch bài viết (ĐÃ CẬP NHẬT LOGIC)
@@ -194,6 +193,7 @@ const HomeArticles = () => {
         setNewsColumn2([]);
       })
       .finally(() => setIsLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCategorySlug, API_BASE_URL]); // Phụ thuộc vẫn giữ nguyên
 
   return (
