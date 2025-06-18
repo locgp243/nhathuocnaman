@@ -1,43 +1,44 @@
-const CLICK_HISTORY_KEY = "subcategory_click_history"
+// src/lib/localStorageUtils.ts
+
+// CHANGED: Đổi key để tránh xung đột với dữ liệu cũ (lưu tên thay vì slug)
+const HISTORY_KEY = 'categoryClickHistory_slugs'; 
+const MAX_HISTORY_SIZE = 30;
 
 /**
- * Lưu tên subcategory vào localStorage
+ * Lấy lịch sử các SLUG danh mục đã click từ localStorage.
  */
-export function saveSubcategoryToHistory(subcategory: string) {
-  if (!subcategory) return
+export const getClickHistory = (): string[] => {
+  if (typeof window === 'undefined') return [];
   try {
-    const stored = localStorage.getItem(CLICK_HISTORY_KEY)
-    const history: string[] = stored ? JSON.parse(stored) : []
-    history.push(subcategory)
-    localStorage.setItem(CLICK_HISTORY_KEY, JSON.stringify(history))
+    const history = localStorage.getItem(HISTORY_KEY);
+    return history ? JSON.parse(history) : [];
   } catch (error) {
-    console.error("Lỗi khi lưu lịch sử subcategory:", error)
+    console.error("Lỗi khi đọc lịch sử từ localStorage", error);
+    return [];
   }
-}
+};
 
 /**
- * Lấy danh sách lịch sử subcategory từ localStorage
+ * Lưu một SLUG danh mục vào lịch sử click.
+ * Nếu slug đã tồn tại, nó sẽ được đưa lên đầu danh sách.
  */
-export function getClickHistory(): string[] {
+export const saveCategoryToHistory = (categorySlug: string): void => {
+  if (typeof window === 'undefined' || !categorySlug) return;
   try {
-    const stored = localStorage.getItem(CLICK_HISTORY_KEY)
-    return stored ? JSON.parse(stored) : []
-  } catch {
-    return []
+    const history = getClickHistory();
+    
+    // Xóa slug nếu đã tồn tại để đưa lên đầu
+    const existingIndex = history.indexOf(categorySlug);
+    if (existingIndex > -1) {
+      history.splice(existingIndex, 1);
+    }
+
+    // Luôn thêm slug vừa click vào đầu danh sách
+    history.unshift(categorySlug);
+
+    const newHistory = history.slice(0, MAX_HISTORY_SIZE);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(newHistory));
+  } catch (error) {
+    console.error("Lỗi khi lưu lịch sử vào localStorage", error);
   }
-}
-
-/**
- * Trả về danh sách subcategory phổ biến nhất theo lịch sử click
- */
-export function getPopularSubcategories(history: string[], limit = 5): string[] {
-  const counts: Record<string, number> = {}
-  history.forEach(sub => {
-    counts[sub] = (counts[sub] || 0) + 1
-  })
-
-  return Object.entries(counts)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, limit)
-    .map(([subcategory]) => subcategory)
-}
+};

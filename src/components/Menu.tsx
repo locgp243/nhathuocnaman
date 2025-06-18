@@ -124,7 +124,7 @@ export default function Menu() {
             onMouseLeave={handleMouseLeave}
           >
             <button 
-              className="flex items-center gap-1 text-md font-medium hover:text-yellow-300 transition-colors duration-200"
+              className="cursor-pointer flex items-center gap-1 text-md font-medium hover:text-yellow-300 transition-colors duration-200"
               onClick={() => {
                 localStorage.setItem("title_main_categories", item.title);
                 const prefix = item.category_type === "post" ? "/tin-tuc" : "";

@@ -1,33 +1,30 @@
-export type ProductType =
-  | "Hộp"
-  | "Vỉ"
-  | "Ống"
-  | "Chai"
-  | "Gói"
-  | "Hũ"
-  | "Lọ"
-  | "Tuýp"
-  | "Vỉ 10 viên"
-  | "Vỉ 20 viên"
+// src/types/product.ts
+
+export type ProductType = string;
+
+export interface PriceInfo {
+  original: number;
+  discounted: number;
+}
 
 export interface Product {
-  id: string
-  name: string
-  image: string
-  slug: string
-  price: string
-  discount: number
-  // category: string
-  prices: Partial<{
-    [key in ProductType]: {
-      original: number
-      discounted: number
-    }
-  }>
-  availableTypes: ProductType[]
-  rating: number
-  installment: boolean
-  category_name: string
-  subcategory_name: string
-  main_category_name: string
+  discount_percent: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  unit_name: any;
+  original_price: number;
+  discounted_price: number;
+  id: string;
+  name: string;
+  slug: string;
+  image: string | null;
+  discount: number;
+  main_category_name: string | null;
+  main_category_slug: string | null;
+  subcategory_name: string | null; // Danh mục cấp 2
+  subcategory_slug: string | null; // Slug của danh mục cấp 2
+  category_name: string | null;      // Danh mục cấp 3 (có thể null)
+  category_slug: string | null;      // Slug của danh mục cấp 3 (có thể null)
+  availableTypes: ProductType[];
+  prices: Record<ProductType, PriceInfo>;
+  created_at?: string;
 }
