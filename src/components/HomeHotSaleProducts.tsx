@@ -130,7 +130,7 @@ export default function HomeHotSaleProducts() {
         {product.subcategory_name && <Badge className="absolute top-2 right-2 bg-secondary text-[#FFFFFF] z-10">{product.subcategory_name}</Badge>}
         <CardContent className="p-3 flex flex-col flex-grow">
           <div className="flex justify-center mb-3">
-            <Image src={product.image || "/placeholder.png"} alt={product.name} width={150} height={150} className="object-contain h-[120px] md:h-[150px]" />
+            <Image src={'https://nhathuoc.trafficnhanh.com/' + product.image || "/placeholder.png"} alt={product.name} width={150} height={150} className="object-contain h-[120px] md:h-[150px]" />
           </div>
           <h3 className="font-medium text-sm text-[#333333] mb-2 h-10 line-clamp-2">{product.name}</h3>
           

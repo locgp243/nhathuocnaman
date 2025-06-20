@@ -94,42 +94,6 @@ function ProductCard({ product }: { product: Product }) {
   );
 }
 
-//----- COMPONENT: SubCategoryMenu (MỚI) -----//
-function SubCategoryMenu() {
-    const categories = [
-        { name: "Bổ sung Vitamin & Khoáng chất", icon: "/product-placeholder.jpg", active: true },
-        { name: "Vitamin & khoáng chất", icon: "/product-placeholder.jpg", active: false },
-        { name: "Vitamin C", icon: "/product-placeholder.jpg", active: false },
-        { name: "Vitamin D", icon: "/product-placeholder.jpg", active: false },
-        { name: "Vitamin B", icon: "/product-placeholder.jpg", active: false },
-        { name: "Sắt, Folic", icon: "/product-placeholder.jpg", active: false },
-        { name: "Vitamin E", icon: "/product-placeholder.jpg", active: false },
-    ];
-
-    return (
-        <div className="mb-6">
-            <div className="flex flex-wrap gap-3">
-                {categories.map((cat, index) => (
-                    <a 
-                        key={index} 
-                        href="#" 
-                        className={`flex flex-col items-center justify-center p-2 border rounded-lg w-28 h-24 text-center text-xs font-medium transition-colors
-                            ${cat.active 
-                                ? 'bg-blue-50 border-blue-500 text-blue-600' 
-                                : 'bg-white border-gray-200 text-gray-700 hover:border-blue-500 hover:bg-blue-50'
-                            }`}
-                    >
-                        <div className="w-10 h-10 relative mb-1">
-                            <Image src={cat.icon} alt={cat.name} fill className="object-contain" />
-                        </div>
-                        <span className="leading-tight">{cat.name}</span>
-                    </a>
-                ))}
-            </div>
-        </div>
-    );
-}
-
 
 //----- COMPONENT: ProductFilters (CẬP NHẬT) -----//
 function ProductFilters() {
@@ -246,9 +210,7 @@ export default function ProductsPage() {
     <div className="bg-gray-50">
       <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <Breadcrumb />
-        
-        {/* Component Menu Danh mục con đã được thêm vào đây */}
-        <SubCategoryMenu />
+      
 
         <div className="flex flex-col lg:flex-row lg:space-x-8">
           <aside className="w-full lg:w-1/4 xl:w-1/5 mb-8 lg:mb-0 shrink-0">

@@ -7,14 +7,15 @@ import Image from "next/image"
 import Link from "next/link"
 import { API_BASE_URL } from "@/lib/api"
 
-// --- Interfaces (giữ nguyên như lần cập nhật trước) ---
-interface Product {
-  id: string
-  name: string
-  price: string
-  image: string | null
-  slug: string
-  discount?: string
+// === START: INTERFACES ĐÃ ĐƯỢC CẬP NHẬT CHO CHÍNH XÁC ===
+// Interface này mô tả đúng dữ liệu sản phẩm trong mảng 'promos' từ API
+interface PromoProduct {
+  id: number;
+  name: string;
+  slug: string;
+  sale_price: string;
+  price: string; // Đây là giá gốc
+  image_url: string | null;
 }
 
 interface CategoryBase {
@@ -27,22 +28,28 @@ interface CategoryBase {
   image_url: string | null
 }
 
+// Đây là danh mục cấp 3 (menu item)
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface MenuItem extends CategoryBase {
-  promos: Product[]
+  // Không có promos ở cấp này
 }
 
+// Đây là danh mục cấp 2 (sub menu), chứa các promos
 interface MenuSub extends CategoryBase {
   items: MenuItem[]
+  promos: PromoProduct[] // Mảng promos thuộc về danh mục cấp 2
 }
 
 interface MenuMain extends CategoryBase {
   sub: MenuSub[]
   category_type: string
 }
+// === END: INTERFACES ĐÃ ĐƯỢC CẬP NHẬT ===
+
 
 export default function Menu() {
+  // Giữ nguyên state và logic của bạn
   const [menuData, setMenuData] = useState<MenuMain[]>([
-    // Initial state (IDs là chuỗi, thêm image_url)
     { id: "1", title: "Thực phẩm chức năng", slug: "thuc-pham-chuc-nang", position: 1, active: true, extend: true, image_url: null, sub: [], category_type: "product" },
     { id: "2", title: "Dược mỹ phẩm", slug: "duoc-my-pham", position: 2, active: true, extend: true, image_url: null, sub: [], category_type: "product" },
     { id: "3", title: "Thuốc", slug: "thuoc", position: 3, active: true, extend: true, image_url: null, sub: [], category_type: "product" },
@@ -68,7 +75,6 @@ export default function Menu() {
             extend: localConfig?.extend ?? apiItem.extend,
           };
         });
-        // Sắp xếp menu cấp cao nhất theo position
         mergedData.sort((a, b) => (a.position || 0) - (b.position || 0));
         setMenuData(mergedData);
         console.log("Menu data loaded and merged: ", mergedData);
@@ -81,8 +87,6 @@ export default function Menu() {
     if (hideTimeout) clearTimeout(hideTimeout);
     const menuItem = menuData.find(item => item.id === menuId);
     
-    // Chỉ set activeMenu nếu bản thân menuItem đó active và có sub-items (nếu extend=false) hoặc là mega menu (extend=true)
-    // Hoặc nếu là menu đơn giản không có sub-items nhưng vẫn muốn nó active khi hover (ví dụ: chỉ là link) thì bỏ check item.sub.length
     if (menuItem?.active) {
       setActiveMenu(menuId);
       setHoveredIndex(0);
@@ -101,7 +105,6 @@ export default function Menu() {
 
   const currentActiveMenuConfig = getMenuConfigById(activeMenu);
 
-  // Lọc các sub-items và items dựa trên cờ active của chúng
   const getActiveSubItems = (menuItem: MenuMain | undefined) => {
     return menuItem?.sub?.filter(sub => sub.active) || [];
   }
@@ -114,7 +117,6 @@ export default function Menu() {
   return (
     <header className="bg-primary shadow-sm border-b z-50 relative sm:flex hidden animate-bg-flow">
       <nav className="relative max-w-7xl mx-auto px-4 flex items-center gap-10 h-14 text-white">
-        {/* Lọc các mục menu chính có active = true */}
         {menuData.filter(item => item.active).map((item, index) => (
           <div
             key={item.id}
@@ -127,18 +129,16 @@ export default function Menu() {
               className="cursor-pointer flex items-center gap-1 text-md font-medium hover:text-yellow-300 transition-colors duration-200"
               onClick={() => {
                 localStorage.setItem("title_main_categories", item.title);
-                const prefix = item.category_type === "post" ? "/tin-tuc" : "";
+                // Sửa lại logic điều hướng cho đúng
+                const prefix = item.category_type === "post" ? "/tin-tuc" : "/danh-muc";
                 window.location.href = `${prefix}/${item.slug}`;
               }}
-
             >
               {item.title} 
-              {/* Chevron chỉ hiển thị nếu item.active (đã được lọc) 
-                  VÀ (nó là mega menu HOẶC nó là simple menu và CÓ sub-items active) */}
               {item.active && (item.extend || getActiveSubItems(item).length > 0) && <ChevronDown size={14} />}
             </button>
 
-            {/* Simple Menu Dropdown: chỉ hiển thị nếu item này đang active, bản thân nó active, extend = false VÀ CÓ sub-items active */}
+            {/* Simple Menu Dropdown: Logic của bạn được giữ nguyên */}
             {activeMenu === item.id && item.active && !item.extend && getActiveSubItems(item).length > 0 && (
               <div
                 className="absolute left-0 top-full mt-2 w-[320px] bg-white border rounded-lg shadow-xl z-50 text-black"
@@ -155,7 +155,7 @@ export default function Menu() {
                       >
                         <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                           {subItem.image_url ? (
-                            <Image width={20} height={20} src={subItem.image_url} alt={subItem.title} className="rounded-full object-cover" />
+                            <Image width={20} height={20} src={`${API_BASE_URL}${subItem.image_url}`} alt={subItem.title} className="rounded-full object-cover" />
                           ) : (
                             <span className="text-blue-600 text-xs font-medium">
                               {subItem.title.charAt(0)}
@@ -166,12 +166,6 @@ export default function Menu() {
                       </Link>
                     ))}
                   </div>
-                  {/* Thông báo này sẽ không hiển thị nếu đã lọc ở trên */}
-                  {/* {getActiveSubItems(item).length === 0 && (
-                    <div className="text-sm text-gray-500 text-center py-4">
-                      Chưa có danh mục con active
-                    </div>
-                  )} */}
                 </div>
               </div>
             )}
@@ -179,7 +173,7 @@ export default function Menu() {
         ))}
       </nav>
 
-      {/* Mega Menu Dropdown: chỉ hiển thị nếu currentActiveMenuConfig tồn tại, active, extend = true VÀ CÓ sub-items active */}
+      {/* Mega Menu Dropdown: Logic của bạn được giữ nguyên */}
       {currentActiveMenuConfig && currentActiveMenuConfig.active && currentActiveMenuConfig.extend && getActiveSubItems(currentActiveMenuConfig).length > 0 && (
         <div
           className="absolute left-0 top-14 z-50 w-full"
@@ -188,14 +182,13 @@ export default function Menu() {
         >
           <div className="max-w-7xl mx-auto">
             <div className="p-4 bg-white border rounded-b-lg shadow-xl text-black flex w-full">
-              {/* Sidebar Categories: Lọc các sub-item active */}
+              {/* Sidebar Categories: Logic của bạn được giữ nguyên */}
               <div className="w-1/4 border-r bg-gray-50">
                 {getActiveSubItems(currentActiveMenuConfig).map((cat: MenuSub, idx: number) => (
                   <div
                     key={cat.id}
                     onMouseEnter={() => setHoveredIndex(idx)}
                     className={`px-4 py-3 cursor-pointer hover:bg-blue-100 text-sm transition-colors duration-200 ${
-                      // Cần lấy index dựa trên mảng đã lọc
                       getActiveSubItems(currentActiveMenuConfig)[hoveredIndex]?.id === cat.id ? "bg-blue-100 font-semibold" : ""
                     }`}
                   >
@@ -215,9 +208,9 @@ export default function Menu() {
                 ))}
               </div>
 
-              {/* Main Content */}
+              {/* Main Content: Logic của bạn được giữ nguyên */}
               <div className="flex flex-col w-3/4">
-                <div className="p-4">
+                <div className="p-4 flex-grow"> {/* Thêm flex-grow để đẩy section promo xuống dưới */}
                   {(() => {
                     const activeSubCategories = getActiveSubItems(currentActiveMenuConfig);
                     const currentHoveredSubCategory = activeSubCategories[hoveredIndex];
@@ -239,7 +232,7 @@ export default function Menu() {
                                           <Image width={24} height={24} src={`${API_BASE_URL}${menuItem.image_url}`} alt={menuItem.title} className="rounded-lg object-cover"/>
                                         ): (
                                           <span className="text-white text-xs font-medium">
-                                           {menuItem.title.charAt(0)}
+                                            {menuItem.title.charAt(0)}
                                           </span>
                                         )}
                                       </div>
@@ -264,15 +257,70 @@ export default function Menu() {
                   })()}
                 </div>
 
-                {/* Promotions Section - Vẫn là rỗng */}
-                <div className="border-t p-4">
+                {/* === START: PROMOTIONS SECTION ĐÃ ĐƯỢC THAY THẾ === */}
+                <div className="border-t p-4 mt-auto"> {/* Thêm mt-auto để đẩy section này xuống dưới cùng */}
                   <div className="flex gap-2 items-center mb-3">
                     <h4 className="text-sm font-semibold text-gray-800">🔥 Ưu đãi nổi bật</h4>
                   </div>
-                   <div className="text-sm text-gray-500 text-center py-4">
-                      Chưa có ưu đãi
-                   </div>
+                  {(() => {
+                    // Lấy ra danh mục cấp 2 đang được hover
+                    const activeSubCategories = getActiveSubItems(currentActiveMenuConfig);
+                    const currentHoveredSubCategory = activeSubCategories[hoveredIndex];
+                    // Lấy mảng promos từ danh mục đó
+                    const promos = currentHoveredSubCategory?.promos || [];
+
+                    // Nếu có sản phẩm promo thì hiển thị
+                    if (promos.length > 0) {
+                      return (
+                        <div className="grid grid-cols-2 gap-4">
+                          {promos.map((promo: PromoProduct) => (
+                            <Link key={promo.id} href={`/san-pham/${promo.slug}`} className="group">
+                              <Card className="p-3 hover:border-blue-500 transition-colors duration-200 h-full">
+                                <div className="flex gap-3 items-center">
+                                  <div className="flex-shrink-0">
+                                    {promo.image_url && (
+                                      <Image
+                                        src={`${API_BASE_URL}${promo.image_url}`}
+                                        alt={promo.name}
+                                        width={80}
+                                        height={80}
+                                        className="rounded-md object-cover border"
+                                      />
+                                    )}
+                                  </div>
+                                  <div className="flex flex-col">
+                                    <p className="text-sm font-medium text-gray-800 group-hover:text-blue-600 line-clamp-2 leading-tight">
+                                      {promo.name}
+                                    </p>
+                                    <div className="flex items-baseline gap-2 mt-1">
+                                      <p className="text-base font-semibold text-red-600">
+                                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(promo.sale_price))}
+                                      </p>
+                                      {/* Chỉ hiển thị giá gốc nếu nó khác giá bán */}
+                                      {Number(promo.price) > Number(promo.sale_price) && (
+                                        <p className="text-xs text-gray-500 line-through">
+                                          {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Number(promo.price))}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </Card>
+                            </Link>
+                          ))}
+                        </div>
+                      );
+                    } else {
+                      // Nếu không có thì hiển thị thông báo
+                      return (
+                        <div className="text-sm text-gray-500 text-center py-4">
+                          Chưa có ưu đãi nổi bật.
+                        </div>
+                      );
+                    }
+                  })()}
                 </div>
+                {/* === END: PROMOTIONS SECTION === */}
               </div>
             </div>
           </div>
