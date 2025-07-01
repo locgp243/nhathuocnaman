@@ -597,6 +597,7 @@ export default function ProductDetailPage({ params }: Props) {
         };
 
         fetchProduct();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [productId]);
 
     const handleVariantChange = (variantId: number) => {
