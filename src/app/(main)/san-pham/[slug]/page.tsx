@@ -1,15 +1,13 @@
-// app/san-pham/[slug]/page.tsx
+// app/(main)/san-pham/[slug]/page.tsx
 
 import ProductClientPage from '@/components/ProductClientPage';
 import { notFound } from 'next/navigation';
-// import type { Metadata } from 'next';
+import type { Metadata } from 'next';
 
-// Định nghĩa kiểu props
-interface PageProps {
-  params: {
-    slug: string;
-  };
-}
+// Định nghĩa kiểu props cho Next.js 15
+type PageProps = {
+  params: Promise<{ slug: string; }>;
+};
 
 // Hàm lấy dữ liệu (không đổi)
 async function getProductBySlug(slug: string) {
@@ -17,49 +15,39 @@ async function getProductBySlug(slug: string) {
         const response = await fetch(`https://nhathuoc.trafficnhanh.com/products.php?action=doc_chi_tiet&slug=${slug}`, {
             next: { revalidate: 3600 } 
         });
+        if (!response.ok) return null;
         const result = await response.json();
         return (result.success && result.data) ? result.data : null;
     } catch (error) {
-        console.error("API Error:", error);
+        console.error("API Error fetching product:", error);
         return null;
     }
 }
 
-// ⭐ MỚI: Tự động tạo metadata cho SEO
-// export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-//     const product = await getProductBySlug(params.slug);
-
-//     if (!product) {
-//         return {
-//             title: 'Không tìm thấy sản phẩm',
-//         };
-//     }
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+    // ⭐ AWAIT params trước khi sử dụng
+    const params = await props.params;
+    const slug = params.slug;
+    const product = await getProductBySlug(slug);
     
-//     return {
-//         title: product.meta_title || product.name,
-//         description: product.meta_description || product.description,
-//         openGraph: {
-//             title: product.meta_title || product.name,
-//             description: product.meta_description || product.description,
-//             images: [
-//                 {
-//                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//                     url: `https://nhathuoc.trafficnhanh.com/${product.images?.find((img: any) => img.is_primary)?.image_url || ''}`,
-//                     width: 800,
-//                     height: 600,
-//                     alt: product.name,
-//                 },
-//             ],
-//         },
-//     };
-// }
+    if (!product) {
+        return {
+            title: 'Không tìm thấy sản phẩm',
+        };
+    }
 
+    return {
+        title: product.meta_title || product.name,
+        description: product.meta_description || product.description,
+    };
+}
 
-// Trang Server Component
-export default async function ProductDetailPage({ params }: PageProps) {
-    // ⭐ SỬA LỖI: Truyền thẳng `params.slug`, không destructure ra biến riêng
-    const product = await getProductBySlug(params.slug);
-
+export default async function ProductDetailPage(props: PageProps) {
+    // ⭐ AWAIT params trước khi sử dụng
+    const params = await props.params;
+    const slug = params.slug;
+    const product = await getProductBySlug(slug);
+    
     if (!product) {
         notFound();
     }

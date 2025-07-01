@@ -9,74 +9,74 @@ import { Banner } from "@/types/banner"
 import { API_BASE_URL, API_ENDPOINTS } from "@/lib/api"
 
 // Mock data - thay thế bằng API call thực tế
-const MOCK_MAIN_BANNERS: Banner[] = [
-  {
-    title: "Kiểm tra sức khỏe",
-    image: "/images/slider-5.webp",
-    link: "#",
-    sortOrder: 6,
-    active: true,
-  },
-  {
-    title: "Tư vấn với Dược Sĩ",
-    image: "/images/banner-6.jpg",
-    link: "#",
-    sortOrder: 2,
-    active: true,
-  },
-  {
-    title: "Tìm nhà thuốc",
-    image: "/images/banner-7.jpg",
-    link: "#",
-    sortOrder: 3,
-    active: true,
-  },
-  {
-    title: "Đơn của tôi",
-    image: "/images/banner-8.jpg",
-    link: "#",
-    sortOrder: 4,
-    active: true,
-  },
-  {
-    title: "Tiêm vaccine",
-    image: "/images/slider-5.webp",
-    link: "#",
-    sortOrder: 5,
-    active: true,
-  },
-  {
-    title: "Cần mua thuốc",
-    image: "/images/banner-1.webp",
-    link: "#",
-    sortOrder: 1,
-    active: true,
-  },
-]
+// const MOCK_MAIN_BANNERS: Banner[] = [
+//   {
+//     title: "Kiểm tra sức khỏe",
+//     image: "/images/slider-5.webp",
+//     link: "#",
+//     sortOrder: 6,
+//     active: true,
+//   },
+//   {
+//     title: "Tư vấn với Dược Sĩ",
+//     image: "/images/banner-6.jpg",
+//     link: "#",
+//     sortOrder: 2,
+//     active: true,
+//   },
+//   {
+//     title: "Tìm nhà thuốc",
+//     image: "/images/banner-7.jpg",
+//     link: "#",
+//     sortOrder: 3,
+//     active: true,
+//   },
+//   {
+//     title: "Đơn của tôi",
+//     image: "/images/banner-8.jpg",
+//     link: "#",
+//     sortOrder: 4,
+//     active: true,
+//   },
+//   {
+//     title: "Tiêm vaccine",
+//     image: "/images/slider-5.webp",
+//     link: "#",
+//     sortOrder: 5,
+//     active: true,
+//   },
+//   {
+//     title: "Cần mua thuốc",
+//     image: "/images/banner-1.webp",
+//     link: "#",
+//     sortOrder: 1,
+//     active: true,
+//   },
+// ]
 
-const MOCK_RIGHT_BANNERS: Banner[] = [
-  {
-    title: "Khuyến mãi",
-    image: "/images/slider-1.webp",
-    link: "#",
-    sortOrder: 1,
-    active: true,
-  },
-  {
-    title: "Sản phẩm mới",
-    image: "/images/slider-3.webp",
-    link: "#",
-    sortOrder: 2,
-    active: true,
-  },
-  {
-    title: "Sản phẩm bán chạy",
-    image: "/images/slider-2.webp",
-    link: "#",
-    sortOrder: 3,
-    active: true,
-  },
-]
+// const MOCK_RIGHT_BANNERS: Banner[] = [
+//   {
+//     title: "Khuyến mãi",
+//     image: "/images/slider-1.webp",
+//     link: "#",
+//     sortOrder: 1,
+//     active: true,
+//   },
+//   {
+//     title: "Sản phẩm mới",
+//     image: "/images/slider-3.webp",
+//     link: "#",
+//     sortOrder: 2,
+//     active: true,
+//   },
+//   {
+//     title: "Sản phẩm bán chạy",
+//     image: "/images/slider-2.webp",
+//     link: "#",
+//     sortOrder: 3,
+//     active: true,
+//   },
+// ]
 
 // Constants
 const AUTO_SLIDE_INTERVAL = 5000
@@ -84,8 +84,8 @@ const DRAG_SENSITIVITY = 1.5
 
 export default function HomeBanner() {
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0)
-  const [mainBanners, setMainBanners] = useState<Banner[]>(MOCK_MAIN_BANNERS)
-  const [rightBanners, setRightBanners] = useState<Banner[]>(MOCK_RIGHT_BANNERS)
+  const [mainBanners, setMainBanners] = useState<Banner[]>([])
+  const [rightBanners, setRightBanners] = useState<Banner[]>([])
 
   // Refs
   const scrollRef = useRef<HTMLDivElement | null>(null)
@@ -115,7 +115,6 @@ export default function HomeBanner() {
     } catch (error) {
       console.error("Failed to fetch main banners:", error)
       // Fallback to mock data
-      setMainBanners(sortBannersByOrder(MOCK_MAIN_BANNERS))
     }
   }, [sortBannersByOrder])
 
@@ -133,7 +132,6 @@ export default function HomeBanner() {
     } catch (error) {
       console.error("Failed to fetch right banners:", error)
       // Fallback to mock data
-      setRightBanners(sortBannersByOrder(MOCK_RIGHT_BANNERS))
     }
   }, [sortBannersByOrder])
 
