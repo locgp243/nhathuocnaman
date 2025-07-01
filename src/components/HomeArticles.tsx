@@ -58,7 +58,7 @@ const FeaturedArticleCard = ({ article }: { article: Post }) => (
         <Card className="h-full overflow-hidden transition-shadow duration-300 bg-transparent border-none shadow-none hover:shadow-xl">
             <div className="relative w-full h-64 rounded-lg overflow-hidden">
                 <Image
-                    src={article.image_url || "/api/placeholder/400/300"}
+                    src={`https://nhathuoc.trafficnhanh.com/${article.image_url}`}
                     alt={article.title}
                     fill
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -85,12 +85,13 @@ const FeaturedArticleCard = ({ article }: { article: Post }) => (
 );
 
 const ArticleItemCard = ({ article }: { article: Post }) => (
+  
     <Link key={article.id} href={`/tin-tuc/goc-suc-khoe/${article.slug}`} className="block group">
         <Card className="overflow-hidden transition-shadow duration-300 cursor-pointer bg-transparent border-none shadow-none hover:shadow-lg rounded-lg">
             <div className="flex gap-4">
                 <div className="w-28 h-24 relative flex-shrink-0">
                     <Image
-                        src={`${API_BASE_URL}${article.image_url || "/api/placeholder/150/100"}`}
+                        src={`${API_BASE_URL}${article.image_url}`}
                         alt={article.title}
                         fill
                         className="object-cover rounded-md"
@@ -153,6 +154,7 @@ const HomeArticles = () => {
     fetch(`${API_BASE_URL}/categories.php?action=doc_danh_muc_bai_viet`)
       .then((res) => res.json())
       .then((data: PostCategory[]) => {
+        console.log("Danh mục bài viết:", data);
         const featuredCategory: PostCategory = { id: "0", title: "Bài viết nổi bật", slug: "featured" };
         setCategories([featuredCategory, ...data]);
       })
@@ -176,6 +178,7 @@ const HomeArticles = () => {
     fetch(endpoint)
       .then((res) => res.json())
       .then((data: Post[] | null) => {
+        console.log("Bài viết:", data);
         if (data && data.length > 0) {
           setFeaturedArticle(data[0]);
           setNewsColumn1(data.slice(1, 4));

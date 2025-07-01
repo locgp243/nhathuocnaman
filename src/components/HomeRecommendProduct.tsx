@@ -8,198 +8,338 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
-import { Product, ProductType } from "@/types/product"
 import SkeletonProductCards from "@/components/SkeletonProductCards"
 import { saveCategoryToHistory, getClickHistory } from "@/lib/localStorageUtils"
+import { useCart } from "@/contexts/CartContext"
+import { toast } from "sonner"
+// --- TYPES ---
+interface ApiProduct {
+    id: number;
+    name: string;
+    slug: string;
+    brand_name: string;
+    variants: { id: number; unit_name: string; price: string; original_price: string; is_default: 1 | 0; }[];
+    images: { image_url: string; is_primary: 1 | 0; }[];
+    categories_full_path: { subcategory_name: string | null; subcategory_slug: string | null; }[];
+}
+interface ApiHotSalesProduct {
+    id: number;
+    name: string;
+    slug: string;
+    image: string;
+    discounted_price: string;
+    original_price: string;
+    discount_percent: number;
+    subcategory_name: string | null;
+    subcategory_slug: string | null;
+    brand_name: string;
+    unit_name: string;
+}
 
-// Định nghĩa kiểu cho danh mục con
+// SỬA ĐỔI: Cấu trúc của Product để chứa thông tin đầy đủ của variant
+interface Product {
+    id: string;
+    name: string;
+    slug: string;
+    image: string;
+    discount: number;
+    subcategory_name: string | null;
+    subcategory_slug: string | null;
+    availableTypes: string[];
+    // Thay thế `prices` bằng `variantsInfo` để chứa cả variantId
+    variantsInfo: Record<string, {
+        id: number; // Đây chính là variantId
+        original: number;
+        discounted: number;
+    }>;
+    brand_name: string;
+}
 interface Subcategory {
-  name: string;
-  slug: string;
+    name: string;
+    slug: string;
 }
-
 interface HomeRecommendProductsProps {
-  title?: string;
-  icon?: string;
+    title?: string;
+    icon?: string;
 }
 
-export default function HomeRecommendProducts({ 
-  title = "ĐỀ XUẤT SẢN PHẨM",
-  icon = "/images/thucphamchucnang.png"
+// --- HÀM BIẾN ĐỔI ---
+const API_BASE_URL = "https://nhathuoc.trafficnhanh.com";
+
+// SỬA ĐỔI: Cập nhật hàm transform để tạo ra cấu trúc `variantsInfo`
+const transformApiProduct = (apiProduct: ApiProduct): Product => {
+    const primaryImage = apiProduct.images.find(img => img.is_primary === 1) || apiProduct.images[0];
+    const imageUrl = primaryImage ? `${API_BASE_URL}${primaryImage.image_url}` : "/placeholder.svg";
+    
+    const variantsInfo: Product['variantsInfo'] = {};
+    apiProduct.variants.forEach(variant => {
+        const typeName = variant.unit_name;
+        if (typeName) {
+            variantsInfo[typeName] = {
+                id: variant.id, // <-- Lưu lại ID của variant
+                original: parseFloat(variant.original_price) || 0,
+                discounted: parseFloat(variant.price) || 0
+            };
+        }
+    });
+
+    const defaultVariant = apiProduct.variants.find(v => v.is_default === 1) || apiProduct.variants[0];
+    let discount = 0;
+    if (defaultVariant) {
+        const original = parseFloat(defaultVariant.original_price);
+        const discounted = parseFloat(defaultVariant.price);
+        if (original > 0 && discounted < original) {
+            discount = Math.round(((original - discounted) / original) * 100);
+        }
+    }
+
+    const firstSubcategory = apiProduct.categories_full_path.find(cat => cat.subcategory_name && cat.subcategory_slug);
+    
+    return {
+        id: String(apiProduct.id),
+        name: apiProduct.name,
+        slug: apiProduct.slug,
+        image: imageUrl,
+        discount,
+        subcategory_name: firstSubcategory?.subcategory_name || null,
+        subcategory_slug: firstSubcategory?.subcategory_slug || null,
+        availableTypes: apiProduct.variants.map(v => v.unit_name).filter(Boolean),
+        variantsInfo, // <-- Sử dụng cấu trúc mới
+        brand_name: apiProduct.brand_name
+    };
+};
+
+// SỬA ĐỔI: Cập nhật hàm transform cho hot_sales
+const transformHotSalesProduct = (apiProduct: ApiHotSalesProduct): Product => {
+    const typeName = apiProduct.unit_name || 'Sản phẩm';
+    return {
+        id: String(apiProduct.id),
+        name: apiProduct.name,
+        slug: apiProduct.slug,
+        image: `${API_BASE_URL}${apiProduct.image}`,
+        discount: apiProduct.discount_percent || 0,
+        subcategory_name: apiProduct.subcategory_name,
+        subcategory_slug: apiProduct.subcategory_slug,
+        availableTypes: [typeName],
+        variantsInfo: { // <-- Sử dụng cấu trúc mới
+            [typeName]: {
+                id: apiProduct.id, // Với hot_sales, có thể variantId chính là productId nếu mỗi sp chỉ có 1 variant
+                original: parseFloat(apiProduct.original_price) || 0,
+                discounted: parseFloat(apiProduct.discounted_price) || 0,
+            }
+        },
+        brand_name: apiProduct.brand_name,
+    };
+};
+
+export default function HomeRecommendProducts({
+    title = "ĐỀ XUẤT SẢN PHẨM",
 }: HomeRecommendProductsProps) {
+    const router = useRouter();
+    const { addToCart } = useCart();
 
-  const router = useRouter();
-  
-  const [isLoading, setIsLoading] = useState(true);
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [availableSubcategories, setAvailableSubcategories] = useState<Subcategory[]>([]);
-  // CHANGED: selectedTab giờ sẽ lưu slug
-  const [selectedTab, setSelectedTab] = useState<string>("recommend"); 
-  const [selectedTypes, setSelectedTypes] = useState<Record<string, ProductType>>({});
+    const [isLoading, setIsLoading] = useState(true);
+    const [allProducts, setAllProducts] = useState<Product[]>([]);
+    const [products, setProducts] = useState<Product[]>([]);
+    const [availableSubcategories, setAvailableSubcategories] = useState<Subcategory[]>([]);
+    const [selectedTab, setSelectedTab] = useState<string>("recommend");
+    const [selectedTypes, setSelectedTypes] = useState<Record<string, string>>({});
 
-  // --- HÀM XỬ LÝ SỰ KIỆN ---
+    useEffect(() => {
+        const loadData = async () => {
+            setIsLoading(true);
+            let transformedProducts: Product[] = [];
+            try {
+                const historySlugs = getClickHistory();
+                const apiUrl = `${API_BASE_URL}/products.php`;
 
-  // CHANGED: Lưu subcategory_SLUG thay vì name
-  const handleProductClick = useCallback((product: Product) => {
-    if (product.subcategory_slug) {
-      saveCategoryToHistory(product.subcategory_slug);
-    }
-    router.push(`/product/${product.slug}`);
-  }, [router]);
+                if (historySlugs.length > 0) {
+                    const formData = new FormData();
+                    formData.append('action', 'lay_san_pham_goi_y');
+                    historySlugs.forEach(slug => formData.append('category_slugs[]', slug));
+                    const response = await fetch(apiUrl, { method: 'POST', body: formData });
+                    if (response.ok) {
+                        const apiData: ApiProduct[] = await response.json();
+                        if (apiData && apiData.length > 0) {
+                             transformedProducts = apiData.map(transformApiProduct);
+                        }
+                    } else {
+                        console.error("API gợi ý thất bại, sẽ tải sản phẩm hot sales.");
+                    }
+                }
 
-  // CHANGED: Logic chuyển tab và lọc giờ hoạt động với SLUG
-  const handleTabChange = useCallback((tabSlug: string) => {
-    setSelectedTab(tabSlug);
+                if (transformedProducts.length === 0) {
+                    const fallbackUrl = `${API_BASE_URL}/products.php?action=hot_sales`;
+                    const response = await fetch(fallbackUrl);
+                    if (!response.ok) throw new Error('API hot_sales thất bại');
+                    const hotSalesData: ApiHotSalesProduct[] = await response.json();
+                    transformedProducts = hotSalesData.map(transformHotSalesProduct);
+                }
 
-    if (tabSlug === "recommend") {
-      const historySlugs = getClickHistory();
-      if (historySlugs.length > 0) {
-        const recommendedProducts = allProducts.filter(p => 
-          p.subcategory_slug && historySlugs.includes(p.subcategory_slug)
-        );
-        setProducts(recommendedProducts.length > 0 ? recommendedProducts : allProducts);
-      } else {
-        setProducts(allProducts);
-      }
-    } else {
-      const filteredProducts = allProducts.filter(p => p.subcategory_slug === tabSlug);
-      setProducts(filteredProducts);
-    }
-  }, [allProducts]);
+                setAllProducts(transformedProducts);
+                setProducts(transformedProducts);
 
-  useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      try {
-        const historySlugs = getClickHistory();
-        let productData: Product[] = [];
+                const subcategoriesMap = new Map<string, Subcategory>();
+                transformedProducts.forEach(p => {
+                    if (p.subcategory_slug && p.subcategory_name && !subcategoriesMap.has(p.subcategory_slug)) {
+                        subcategoriesMap.set(p.subcategory_slug, { name: p.subcategory_name, slug: p.subcategory_slug });
+                    }
+                });
+                setAvailableSubcategories(Array.from(subcategoriesMap.values()));
+                
+                const defaultTypes: Record<string, string> = {};
+                transformedProducts.forEach(p => {
+                    if (p.availableTypes?.length > 0) {
+                        defaultTypes[p.id] = p.availableTypes[0];
+                    }
+                });
+                setSelectedTypes(defaultTypes);
+            } catch (err) {
+                console.warn("⚠️ Lỗi API, không thể tải dữ liệu.", err);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+        loadData();
+    }, []);
 
-        if (historySlugs.length > 0) {
-            // CHANGED: Sửa lại cách gọi API cho đúng
-            // Action được đặt trên URL, không phải trong body
-            const apiUrl = `https://nhathuoc.trafficnhanh.com/products.php?action=theo_danh_muc_cap_2`;
-            
-            const formData = new FormData();
-            historySlugs.forEach(slug => {
-                formData.append('action','theo_danh_muc_cap_2');
-                formData.append('category_slugs[]', slug);
-            });
+    // SỬA LỖI: Cập nhật hàm `handleAddToCart` để gửi đúng `variantId`
+    const handleAddToCart = (e: React.MouseEvent, product: Product) => {
+        e.stopPropagation();
+        
+        const selectedType = selectedTypes[product.id];
+        const variantInfo = product.variantsInfo[selectedType];
 
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                body: formData,
-            });
-
-            if (!response.ok) throw new Error(`API gợi ý thất bại`);
-            productData = await response.json();
-        } else {
-            // Nếu không có lịch sử, ta có thể hiển thị danh sách trống
-            productData = [];
+        if (!variantInfo) {
+            alert("Đã xảy ra lỗi. Vui lòng chọn phân loại sản phẩm.");
+            return;
         }
 
-        if (!productData) productData = [];
+        const itemToAdd = {
+            productId: product.id,
+            variantId: String(variantInfo.id), // <-- LẤY VARIANT ID TỪ ĐÂY
+            name: product.name,
+            image: product.image,
+            price: variantInfo.discounted,
+            quantity: 1,
+            type: selectedType,
+        };
         
-        setAllProducts(productData);
-        setProducts(productData);
+        addToCart(itemToAdd);
 
-        const subcategoriesMap = new Map<string, Subcategory>();
-        productData.forEach(p => {
-            if (p.subcategory_slug && p.subcategory_name && !subcategoriesMap.has(p.subcategory_slug)) {
-                subcategoriesMap.set(p.subcategory_slug, { name: p.subcategory_name, slug: p.subcategory_slug });
-            }
+        toast.success(`Đã thêm "${product.name} (${selectedType})" vào giỏ hàng!`, {
+            duration: 2000,
+            position: "top-right",
+            style: {
+                backgroundColor: "#fff",
+                color: "text-primary",
+                border: "1px solid #ddd",
+                borderRadius: "8px",
+                padding: "12px 16px",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+            },
+             action: {
+                label: "Xem giỏ hàng",
+                onClick: () => router.push('/gio-hang'),
+            },
         });
-        setAvailableSubcategories(Array.from(subcategoriesMap.values()));
-        
-        const defaultTypes: Record<string, ProductType> = {};
-        productData.forEach(p => { if (p.availableTypes?.length > 0) defaultTypes[p.id] = p.availableTypes[0] });
-        setSelectedTypes(defaultTypes);
-
-      } catch (err) {
-        console.warn("⚠️ Lỗi API, sử dụng dữ liệu giả.", err);
-        setProducts([]); // Đặt lại thành mảng rỗng khi có lỗi
-        setAllProducts([]);
-        setAvailableSubcategories([]);
-      } finally {
-        setIsLoading(false);
-      }
-    }
+    };
     
-    loadData();
-  }, []);
+    const handleProductClick = useCallback((product: Product) => {
+        if (product.subcategory_slug) {
+            saveCategoryToHistory(product.subcategory_slug);
+        }
+        router.push(`/san-pham/${product.slug}`);
+    }, [router]);
 
-  const formatPrice = (price: number) => price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  const handleTypeChange = (e: React.MouseEvent, productId: string, type: ProductType) => { e.stopPropagation(); setSelectedTypes(prev => ({ ...prev, [productId]: type })); };
-  const handleAddToCart = (e: React.MouseEvent) => { e.stopPropagation(); console.log("Thêm vào giỏ hàng"); };
+    const handleTabChange = useCallback((tabSlug: string) => {
+        setSelectedTab(tabSlug);
+        if (tabSlug === "recommend") {
+            setProducts(allProducts);
+        } else {
+            setProducts(allProducts.filter(p => p.subcategory_slug === tabSlug));
+        }
+    }, [allProducts]);
+    
+    const formatPrice = (price: number) => price.toLocaleString('vi-VN');
+    const handleTypeChange = (e: React.MouseEvent, productId: string, type: string) => { 
+        e.stopPropagation(); 
+        setSelectedTypes(prev => ({ ...prev, [productId]: type })); 
+    };
 
-  const renderProductCard = (product: Product) => {
-    const priceInfo = product.prices?.[selectedTypes[product.id]];
-    const originalPrice = priceInfo?.original;
-    const discountedPrice = priceInfo?.discounted;
+    const renderProductCard = (product: Product) => {
+        const selectedTypeForProduct = selectedTypes[product.id];
+        // SỬA ĐỔI: Lấy thông tin giá từ `variantsInfo` thay vì `prices`
+        const variantInfo = product.variantsInfo[selectedTypeForProduct];
+        const discountedPrice = variantInfo?.discounted;
+        const originalPrice = variantInfo?.original;
 
+        return (
+            <Card onClick={() => handleProductClick(product)} className="bg-white shadow-md hover:shadow-lg text-black relative overflow-hidden h-full border border-gray-200 cursor-pointer flex flex-col">
+                {product.discount > 0 && <Badge className="absolute top-2 left-2 bg-rose-500 text-white z-10">Giảm {product.discount}%</Badge>}
+                {product.subcategory_name && <Badge variant="secondary" className="absolute top-2 right-2 z-10">{product.subcategory_name}</Badge>}
+                <CardContent className="p-3 flex flex-col h-full">
+                    <div className="flex justify-center mb-3 h-[150px] items-center">
+                        <Image src={product.image} alt={product.name} width={150} height={150} className="object-contain max-h-full" />
+                    </div>
+                    <div className="flex-grow flex flex-col">
+                        <h3 className="font-medium text-sm mb-2 h-10 line-clamp-2 text-gray-800">{product.name}</h3>
+                        <div className="h-[40px] mb-2 flex items-center">
+                            {product.availableTypes && product.availableTypes.length > 1 ? (
+                                <div className="flex flex-wrap gap-1">
+                                    {product.availableTypes.map((type, index) => ( // Thêm index để tạo key an toàn
+                                        <Button key={`${product.id}-${type}-${index}`} variant={selectedTypes[product.id] === type ? "default" : "outline"} size="sm" className={`px-2 py-0 h-8 text-xs ${selectedTypes[product.id] === type ? "bg-rose-500 hover:bg-rose-600 text-white" : "text-gray-700 border-gray-300"}`} onClick={(e) => handleTypeChange(e, product.id, type)}>{type}</Button>
+                                    ))}
+                                </div>
+                            ) : product.availableTypes && product.availableTypes.length === 1 ? <div className="text-xs text-gray-500">{product.availableTypes[0]}</div> : null}
+                        </div>
+                        <div className="space-y-1 mt-auto">
+                            {typeof discountedPrice === 'number' && <p className="text-rose-600 font-bold text-lg">{formatPrice(discountedPrice)}₫</p>}
+                            {(typeof originalPrice === 'number' && typeof discountedPrice === 'number' && originalPrice > discountedPrice) && (<p className="text-gray-500 text-sm line-through">{formatPrice(originalPrice)}₫</p>)}
+                        </div>
+                    </div>
+                    <Button size="sm" className="w-full mt-3 bg-rose-500 hover:bg-rose-600 text-white" onClick={(e) => handleAddToCart(e, product)}>Thêm Giỏ Hàng</Button>
+                </CardContent>
+            </Card>
+        );
+    };
+    
     return (
-      <Card 
-        onClick={() => handleProductClick(product)}
-        className="bg-[#FFFFFF] shadow-md hover:shadow-lg text-black relative overflow-hidden h-full border border-[#E5E7EB] cursor-pointer"
-      >
-        {product.discount > 0 && <Badge className="absolute top-2 left-2 bg-[#F43F5E] text-[#FFFFFF] animate-sparkle">Giảm {product.discount}%</Badge>}
-        {product.subcategory_name && <Badge className="absolute top-2 right-2 bg-secondary text-white animate-sparkle">{product.subcategory_name}</Badge>}
-        <CardContent className="p-3 flex flex-col h-full">
-          <div className="flex justify-center mb-3"><Image src={product.image || "/placeholder.svg"} alt={product.name} width={150} height={200} className="object-contain h-[150px]" /></div>
-          <h3 className="font-medium text-sm mb-2 h-10 line-clamp-2 text-[#333333]">{product.name}</h3>
-          <div className="h-[40px] mb-2 flex items-center">
-            {product.availableTypes && product.availableTypes.length > 1 ? (
-              <div className="flex flex-wrap gap-1">
-                {product.availableTypes.map((type, index) => (
-                  <Button key={`${type}-${index}`} variant={selectedTypes[product.id] === type ? "default" : "outline"} size="sm" className={`px-2 py-0 h-8 text-xs ${selectedTypes[product.id] === type ? "bg-[#F43F5E] hover:bg-[#E11D48] text-[#FFFFFF]" : "text-gray-700 border-gray-300"}`} onClick={(e) => handleTypeChange(e, product.id, type)}>{type}</Button>
-                ))}
-              </div>
-            ) : product.availableTypes && product.availableTypes.length === 1 ? <div className="text-xs text-gray-500">Loại: {product.availableTypes[0]}</div> : null}
-          </div>
-          <div className="space-y-1 mt-auto">
-            <p className="text-rose-600 font-bold">{formatPrice(discountedPrice || 0)}₫</p>
-            {(typeof originalPrice === 'number' && typeof discountedPrice === 'number' && originalPrice > discountedPrice) && (<p className="text-gray-500 text-sm line-through">{formatPrice(originalPrice)}₫</p>)}
-          </div>
-          <Button size="sm" className="w-full mt-3 bg-rose-500 hover:bg-rose-600 text-white" onClick={handleAddToCart}>Thêm Giỏ Hàng</Button>
-        </CardContent>
-      </Card>
-    );
-  };
-  
-  return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
-      <div className="rounded-lg">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-4">
-          <div className="flex items-center gap-2 mb-4 md:mb-0">
-            <div className="bg-secondary text-white rounded-full p-2"><Image src={icon} alt="icon" width={24} height={24} className="object-contain" /></div>
-            <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
-          </div>
-          <Tabs value={selectedTab} onValueChange={handleTabChange} className="w-full md:w-auto">
-            <TabsList className="bg-transparent h-auto flex flex-wrap gap-2">
-              <TabsTrigger value="recommend" className="bg-[#E5E7EB] text-[#333333] data-[state=active]:bg-[#F43F5E] data-[state=active]:text-white">Gợi ý cho bạn</TabsTrigger>
-              {/* CHANGED: Dùng slug làm key và value, dùng name để hiển thị */}
-              {availableSubcategories.map((sub) => (
-                <TabsTrigger key={sub.slug} value={sub.slug} className="bg-[#E5E7EB] text-[#333333] data-[state=active]:bg-[#F43F5E] data-[state=active]:text-white">
-                  {sub.name}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+        <div className="max-w-7xl mx-auto px-4 py-6">
+            <div className="rounded-lg">
+                <div className="flex flex-col md:flex-row justify-between items-center mb-4">
+                    <div className="flex items-center gap-2 mb-4 md:mb-0">
+                        <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
+                    </div>
+                    <Tabs value={selectedTab} onValueChange={handleTabChange} className="w-full md:w-auto">
+                        <TabsList className="bg-transparent h-auto flex flex-wrap gap-2">
+                            <TabsTrigger value="recommend" className="bg-gray-200 text-gray-800 data-[state=active]:bg-rose-500 data-[state=active]:text-white">Gợi ý cho bạn</TabsTrigger>
+                            {availableSubcategories.map((sub) => (
+                                <TabsTrigger key={sub.slug} value={sub.slug} className="bg-gray-200 text-gray-800 data-[state=active]:bg-rose-500 data-[state=active]:text-white">
+                                    {sub.name}
+                                </TabsTrigger>
+                            ))}
+                        </TabsList>
+                    </Tabs>
+                </div>
+                {isLoading ? <SkeletonProductCards /> : (
+                    <Carousel opts={{ align: "start", loop: products.length > 5 }} className="w-full">
+                        <CarouselContent className="-ml-2 md:-ml-4">
+                            {products.length > 0 ? products.map(product => (
+                                <CarouselItem key={product.id} className="basis-1/2 pl-2 md:pl-4 sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5">
+                                    {renderProductCard(product)}
+                                </CarouselItem>
+                            )) : <div className="w-full text-center py-10">Không có sản phẩm nào phù hợp.</div>}
+                        </CarouselContent>
+                         {products.length > 5 && (
+                              <>
+                                <CarouselPrevious className="absolute left-[-1rem] hidden md:inline-flex" />
+                                <CarouselNext className="absolute right-[-1rem] hidden md:inline-flex" />
+                              </>
+                          )}
+                    </Carousel>
+                )}
+            </div>
         </div>
-        {isLoading ? <SkeletonProductCards /> : (
-            <Carousel opts={{ align: "start", loop: products.length > 5 }} className="w-full">
-                <CarouselContent className="-ml-2 md:-ml-4">
-                    {products.length > 0 ? products.map(product => (
-                        <CarouselItem key={product.id} className="basis-1/2 pl-2 md:pl-4 sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5">
-                            {renderProductCard(product)}
-                        </CarouselItem>
-                    )) : <div className="w-full text-center py-10">Không có sản phẩm nào phù hợp.</div>}
-                </CarouselContent>
-                <CarouselPrevious className="left-1 w-12 h-12 rounded-full bg-rose-500 text-white shadow-md hover:bg-[#E11D48]" />
-                <CarouselNext className="right-1 w-12 h-12 rounded-full bg-rose-500 text-white shadow-md hover:bg-[#E11D48]" />
-            </Carousel>
-        )}
-      </div>
-    </div>
-  )
+    )
 }

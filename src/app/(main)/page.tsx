@@ -15,22 +15,18 @@ export default function Home() {
         <HomeProductCarouselCards
           mainCategorySlug="thuc-pham-chuc-nang"
           title="THỰC PHẨM CHỨC NĂNG"
-          icon="/images/thucphamchucnang.png"
         />
         <HomeProductCarouselCards
           mainCategorySlug="duoc-my-pham"
           title="DƯỢC MỸ PHẨM"
-          icon="/images/duocmypham.png"
         />
         <HomeProductCarouselCards
           mainCategorySlug="thuoc"
           title="THUỐC"
-          icon="/images/thuoc.png"
         />
         <HomeProductCarouselCards
           mainCategorySlug="thiet-bi-y-te"
           title="THIẾT BỊ Y TẾ"
-          icon="/images/thietbiyte.png"
         />
       <HomeArticles />
         <Service />

@@ -130,7 +130,7 @@ export default function Menu() {
               onClick={() => {
                 localStorage.setItem("title_main_categories", item.title);
                 // Sửa lại logic điều hướng cho đúng
-                const prefix = item.category_type === "post" ? "/tin-tuc" : "/danh-muc";
+                const prefix = item.category_type === "post" ? "/tin-tuc" : "";
                 window.location.href = `${prefix}/${item.slug}`;
               }}
             >
@@ -182,30 +182,38 @@ export default function Menu() {
         >
           <div className="max-w-7xl mx-auto">
             <div className="p-4 bg-white border rounded-b-lg shadow-xl text-black flex w-full">
-              {/* Sidebar Categories: Logic của bạn được giữ nguyên */}
+              {/* Sidebar Categories: ĐÃ CẬP NHẬT VỚI LINK */}
               <div className="w-1/4 border-r bg-gray-50">
-                {getActiveSubItems(currentActiveMenuConfig).map((cat: MenuSub, idx: number) => (
-                  <div
-                    key={cat.id}
-                    onMouseEnter={() => setHoveredIndex(idx)}
-                    className={`px-4 py-3 cursor-pointer hover:bg-blue-100 text-sm transition-colors duration-200 ${
-                      getActiveSubItems(currentActiveMenuConfig)[hoveredIndex]?.id === cat.id ? "bg-blue-100 font-semibold" : ""
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-6 h-6 bg-blue-200 rounded-full flex items-center justify-center flex-shrink-0">
-                        {cat.image_url !== null ? (
-                          <Image width={18} height={18} src={`${API_BASE_URL}${cat.image_url}`} alt={cat.title} className="rounded-full object-cover" />
-                        ) : (
-                          <span className="text-blue-700 text-xs font-medium">
-                            {cat.title.charAt(0)}
-                          </span>
-                        )}
-                      </div>
-                      <span>{cat.title}</span>
-                    </div>
-                  </div>
-                ))}
+                  {getActiveSubItems(currentActiveMenuConfig).map((cat: MenuSub, idx: number) => {
+                      // Lấy slug của danh mục cha (cấp 1)
+                      const parentSlugL1 = currentActiveMenuConfig.slug;
+                      // Tạo đường dẫn URL hoàn chỉnh cho danh mục cấp 2
+                      const href = `/${parentSlugL1}/${cat.slug}`;
+
+                      return (
+                          <Link key={cat.id} href={href}>
+                              <div
+                                  onMouseEnter={() => setHoveredIndex(idx)}
+                                  className={`px-4 py-3 cursor-pointer hover:bg-blue-100 text-sm transition-colors duration-200 ${
+                                      getActiveSubItems(currentActiveMenuConfig)[hoveredIndex]?.id === cat.id ? "bg-blue-100 font-semibold" : ""
+                                  }`}
+                              >
+                                  <div className="flex items-center gap-3">
+                                      <div className="w-6 h-6 bg-blue-200 rounded-full flex items-center justify-center flex-shrink-0">
+                                          {cat.image_url !== null ? (
+                                              <Image width={18} height={18} src={`${API_BASE_URL}${cat.image_url}`} alt={cat.title} className="rounded-full object-cover" />
+                                          ) : (
+                                              <span className="text-blue-700 text-xs font-medium">
+                                                  {cat.title.charAt(0)}
+                                              </span>
+                                          )}
+                                      </div>
+                                      <span>{cat.title}</span>
+                                  </div>
+                              </div>
+                          </Link>
+                      );
+                  })}
               </div>
 
               {/* Main Content: Logic của bạn được giữ nguyên */}
@@ -223,7 +231,7 @@ export default function Menu() {
                             const parentSlugL1 = currentActiveMenuConfig.slug;
                             const parentSlugL2 = currentHoveredSubCategory.slug;
                             return (
-                              <Link key={menuItem.id} href={`/danh-muc/${parentSlugL1}/${parentSlugL2}/${menuItem.slug}`}>
+                              <Link key={menuItem.id} href={`/${parentSlugL1}/${parentSlugL2}/${menuItem.slug}`}>
                                 <Card className="cursor-pointer hover:border-blue-500 hover:shadow-md transition-all duration-200 h-full">
                                   <CardContent className="p-4">
                                     <div className="flex items-center gap-3">

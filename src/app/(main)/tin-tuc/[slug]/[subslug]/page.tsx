@@ -20,7 +20,7 @@ const RelatedPostCard = ({ post }: { post: PostType }) => (
     <Card className="h-full overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
       <div className="relative aspect-video">
         <Image
-          src={`${API_BASE_URL}${post.image_url || "/images/placeholder.jpg"}`}
+          src={`https://nhathuoc.trafficnhanh.com${post.image_url || "/images/placeholder.jpg"}`}
           alt={post.title}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -127,7 +127,7 @@ export default async function PostDetailPage({
             {post.image_url && (
               <div className="relative aspect-video rounded-lg overflow-hidden mb-8">
                 <Image
-                  src={post.image_url}
+                  src={`https://nhathuoc.trafficnhanh.com${post.image_url}`}
                   alt={post.title}
                   fill
                   className="object-cover"
