@@ -35,7 +35,7 @@ const TABS = [
     { key: 'returned', label: 'Trả hàng' },
 ];
 
-export const STATUS_INFO: { 
+const STATUS_INFO: { 
     [key: string]: { 
         label: string; 
         className: string; 
