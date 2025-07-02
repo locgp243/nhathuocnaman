@@ -1,57 +1,73 @@
-// app/dat-hang-thanh-cong/page.tsx
 "use client";
 
 import { useEffect, useState, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation'; // Thêm useRouter
 import Link from 'next/link';
 import Image from 'next/image';
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, PackageCheck } from "lucide-react";
+import { toast } from 'sonner';
 
-// --- Định nghĩa Types cho dữ liệu đơn hàng ---
+// ⭐ BƯỚC 1: IMPORT VÀ KẾT NỐI AUTHCONTEXT
+import { useAuth } from '@/contexts/AuthContext';
+
+// --- Định nghĩa Types (Giữ nguyên) ---
 interface OrderItem {
-    id: number;
-    product_name: string;
-    variant_name: string;
-    quantity: number;
-    price: number;
-    image_url: string;
+  id: number;
+  product_name: string;
+  variant_name: string;
+  quantity: number;
+  price: number;
+  image_url: string;
 }
+
+
 
 interface Order {
-    id: number;
-    customer_name: string;
-    customer_phone: string;
-    customer_address: string;
-    notes: string | null;
-    total_amount: number;
-    payment_method: string;
-    status: string;
-    created_at: string;
-    items: OrderItem[];
+  id: number;
+  customer_name: string;
+  customer_phone: string;
+  customer_address: string;
+  notes: string | null;
+  total_amount: number;
+  payment_method: string;
+  status: string;
+  created_at: string;
+  items: OrderItem[];
 }
 
-// --- Component chính để hiển thị nội dung ---
 function OrderConfirmationContent() {
     const searchParams = useSearchParams();
-  
+    const router = useRouter();
+    const { user, isLoading: isAuthLoading } = useAuth(); // Lấy user từ context
+
     const orderId = searchParams.get('order_id');
-    const token = searchParams.get('token'); 
-
-    localStorage.setItem('access_token', token || ''); 
-
+ 
     const [order, setOrder] = useState<Order | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        // ⭐ BƯỚC 2: THAY ĐỔI LOGIC FETCH
+        // Chỉ fetch khi đã load xong auth và có orderId
+        if (isAuthLoading) {
+            return; // Chờ cho AuthProvider load xong
+        }
+
+        const authToken = localStorage.getItem('auth_token');
+
+        // Nếu không có orderId hoặc không có token (chưa đăng nhập), báo lỗi
         if (!orderId) {
             setError("Không tìm thấy mã đơn hàng trong URL.");
             setIsLoading(false);
+            return;
+        }
+        if (!authToken) {
+            toast.error("Vui lòng đăng nhập để xem chi tiết đơn hàng.");
+            router.push(`/dang-nhap?redirect=/dat-hang-thanh-cong?order_id=${orderId}`);
             return;
         }
 
@@ -59,13 +75,20 @@ function OrderConfirmationContent() {
             setIsLoading(true);
             setError(null);
             try {
-                // Thay thế URL này bằng URL API của bạn
-                const response = await fetch(`https://nhathuoc.trafficnhanh.com/orders.php?action=chi_tiet_don_hang&id=${orderId}&token=${token}`);
-                const result = await response.json();
+                // ⭐ BƯỚC 3: GỌI API THEO ĐÚNG CHUẨN MỚI
+                const API_DOMAIN = process.env.NEXT_PUBLIC_API_URL || 'https://nhathuoc.trafficnhanh.com';
+                // action đã được chuẩn hóa thành `get_order_details`
+                // Không còn `&token=` trên URL
+                const response = await fetch(`${API_DOMAIN}/orders.php?action=chi_tiet_don_hang&id=${orderId}`, {
+                    headers: {
+                        // Gửi JWT Token trong Header
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
                 
-                if (!result.success) {
-                    throw new Error(result.message || "Không thể tải thông tin đơn hàng.");
-                }
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || "Không thể tải thông tin đơn hàng.");
+                
                 setOrder(result.data);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (err: any) {
@@ -76,8 +99,8 @@ function OrderConfirmationContent() {
         };
 
         fetchOrderDetails();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [orderId]);
+    // Thêm `router` vào dependency array để tuân thủ quy tắc của hook
+    }, [orderId, isAuthLoading, user, router]);
 
     if (isLoading) {
         return (
@@ -182,16 +205,12 @@ function OrderConfirmationContent() {
 
 // --- Component cha để bọc Suspense ---
 // Suspense là cần thiết vì useSearchParams chỉ hoạt động trong Client Component được bọc bởi nó.
+// --- Component cha để bọc Suspense (Giữ nguyên) ---
 export default function OrderConfirmationPage() {
     return (
         <div className="bg-gray-50">
             <div className="container mx-auto px-4 py-8 lg:py-12">
-                <Suspense fallback={
-                    <div className="flex flex-col items-center justify-center text-center p-10">
-                        <Loader2 className="h-12 w-12 animate-spin text-blue-500 mb-4" />
-                        <p className="text-lg">Đang tải trang...</p>
-                    </div>
-                }>
+                <Suspense fallback={<div>Đang tải trang...</div>}>
                     <OrderConfirmationContent />
                 </Suspense>
             </div>

@@ -18,7 +18,7 @@ import UserSidebar from '@/components/UserSidebar';
 interface Order {
     id: number;
     order_code: string;
-    status: 'processing' | 'shipping' | 'delivered' | 'cancelled' | 'returned';
+    status: 'pending' | 'processing' | 'shipping' | 'completed' | 'cancelled' | 'returned';
     total_amount: string;
     created_at: string;
     representative_image_url: string | null;
@@ -27,19 +27,44 @@ interface Order {
 
 const TABS = [
     { key: 'all', label: 'Tất cả' },
+    { key: 'pending', label: 'Chờ xác nhận' },
     { key: 'processing', label: 'Đang xử lý' },
     { key: 'shipping', label: 'Đang giao' },
-    { key: 'delivered', label: 'Đã giao' },
+    { key: 'completed', label: 'Đã giao' },
     { key: 'cancelled', label: 'Đã hủy' },
     { key: 'returned', label: 'Trả hàng' },
 ];
 
-const STATUS_MAP: { [key: string]: string } = {
-    processing: 'Đang xử lý',
-    shipping: 'Đang vận chuyển',
-    delivered: 'Giao hàng thành công',
-    cancelled: 'Đã hủy',
-    returned: 'Đã trả hàng',
+export const STATUS_INFO: { 
+    [key: string]: { 
+        label: string; 
+        className: string; 
+    } 
+} = {
+    pending: {
+        label: 'Chờ xác nhận',
+        className: 'bg-gray-100 text-gray-800 border-gray-300',
+    },
+    processing: {
+        label: 'Đang xử lý',
+        className: 'bg-blue-100 text-blue-800 border-blue-300',
+    },
+    shipping: {
+        label: 'Đang giao',
+        className: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+    },
+    completed: {
+        label: 'Đã giao',
+        className: 'bg-green-100 text-green-800 border-green-300',
+    },
+    cancelled: {
+        label: 'Đã hủy',
+        className: 'bg-red-100 text-red-800 border-red-300',
+    },
+    returned: {
+        label: 'Trả hàng',
+        className: 'bg-orange-100 text-orange-800 border-orange-300',
+    },
 };
 
 // --- Main Component ---
@@ -159,7 +184,7 @@ export default function MyOrdersPage() {
                                                     <div className="p-4 border-b">
                                                         <div className="flex justify-between items-center text-sm">
                                                             <span className="font-semibold text-gray-800">Mã đơn hàng: {order.order_code}</span>
-                                                            <span className="font-bold text-green-600 uppercase">{STATUS_MAP[order.status] || order.status}</span>
+                                                            <span className={`font-bold uppercase ${STATUS_INFO[order.status]?.className || ''}`}>{STATUS_INFO[order.status]?.label || order.status}</span>
                                                         </div>
                                                         <p className="text-xs text-gray-500 mt-1">Ngày đặt: {new Date(order.created_at).toLocaleDateString('vi-VN')}</p>
                                                     </div>
@@ -181,7 +206,7 @@ export default function MyOrdersPage() {
                                                     </div>
                                                     <div className="bg-gray-50 p-4 flex justify-end gap-2">
                                                         <Button variant="outline" size="sm">Mua lại</Button>
-                                                        <Button size="sm" onClick={() => router.push(`/dat-hang-thanh-cong/?order_id=${order.id}&token=${localStorage.getItem('access_token')}`)}>Xem chi tiết</Button>
+                                                        <Button size="sm" onClick={() => router.push(`/dat-hang-thanh-cong/?order_id=${order.id}&token=${localStorage.getItem('auth_token')}`)}>Xem chi tiết</Button>
                                                     </div>
                                                 </Card>
                                             ))}
