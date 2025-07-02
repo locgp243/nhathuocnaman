@@ -77,7 +77,7 @@ export default function ShoppingCartPage() {
       productIds.forEach(id => formData.append('product_ids[]', id));
 
       try {
-        const response = await fetch(`http://nhathuoc.trafficnhanh.com/products.php?action=lay_san_pham_tu_gio_hang`, {
+        const response = await fetch(`https://nhathuoc.trafficnhanh.com/products.php?action=lay_san_pham_tu_gio_hang`, {
           method: 'POST',
           body: formData,
         });
