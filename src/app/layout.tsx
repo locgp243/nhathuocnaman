@@ -14,8 +14,8 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: "Tên Website Của Em",
-  description: "Mô tả website của em",
+  title: "Nhà Thuốc Nam An",
+  description: "Nhà Thuốc Nam An bán thuốc online, giao hàng tận nơi, uy tín, chất lượng",
 };
 
 export default function RootLayout({

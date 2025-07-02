@@ -230,7 +230,7 @@ export default function HomeProductCarouselCards({ mainCategorySlug, title }: Pr
                                     >
                                         {/* ... JSX cho Badge và Image không đổi ... */}
                                         {discount > 0 && <Badge className="absolute top-2 left-2 bg-[#F43F5E] text-[#FFFFFF] z-10">Giảm {discount}%</Badge>}
-                                        {product.brand_name && <Badge className="absolute top-2 right-2 bg-secondary text-white z-10">{product.brand_name}</Badge>}
+                                        {product.subcategory_name && <Badge className="absolute top-2 right-2 bg-secondary text-white z-10">{product.subcategory_name}</Badge>}
                                         <CardContent className="p-3 flex flex-col h-full">
                                             <div className="relative flex justify-center items-center w-full h-[150px] mb-3 bg-gray-50 rounded-md">
                                                 {imageUrl && (<Image src={imageUrl} alt={product.name} fill sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw" className="object-contain group-hover:scale-105 transition-transform" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />)}
