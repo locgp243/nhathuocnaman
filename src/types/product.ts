@@ -32,6 +32,7 @@ export interface CategoryPath {
 
 // === ĐỊNH NGHĨA PRODUCT ĐẦY ĐỦ ===
 export interface Product {
+  created_at: Date;
   // Thông tin cơ bản từ API Hot Sales cũ
   id: string;
   name: string;
@@ -68,4 +69,16 @@ export interface ProductType {
   name: string;
   originalPrice: number;
   discountedPrice: number;
+}
+
+export interface ApiProduct {
+    id: number;
+    name: string;
+    slug: string;
+    variants: Variant[];
+    images?: ProductImage[];
+    categories_full_path?: {
+        category_slug: string;
+        subcategory_name?: string;
+    }[];
 }

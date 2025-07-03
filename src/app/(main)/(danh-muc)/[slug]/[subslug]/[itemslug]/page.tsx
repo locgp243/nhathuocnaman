@@ -1,15 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronRight } from "lucide-react";
@@ -19,6 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
 import { Product, Variant } from '@/types/product';
+import ProductFilters from '@/components/ProductFilters';
 
 // INTERFACES ĐÃ ĐƯỢC CẬP NHẬT VÀ CHUẨN HÓA
 interface BreadcrumbItemType {
@@ -222,53 +220,94 @@ function SubCategoryMenu({ categories, parentPath }: { categories: Subcategory[]
     );
 }
 
-function ProductFilters() {
-    // Component không đổi
-    const brands = ["Blackmores", "OstroVit", "Healthy Care", "Swisse", "Puritan's Pride"];
-    const priceRanges = ["Dưới 100.000đ", "100.000đ - 200.000đ", "200.000đ - 500.000đ", "Trên 500.000đ"];
-    return (
-        <div className="w-full rounded-lg border bg-white shadow-sm">
-            <div className="p-4">
-                <h3 className="text-base font-bold mb-2">Bộ lọc nâng cao</h3>
-                <Accordion type="multiple" defaultValue={['price', 'brand']} className="w-full">
-                    <AccordionItem value="price"><AccordionTrigger className="text-sm font-semibold">Giá</AccordionTrigger>
-                        <AccordionContent>
-                            <RadioGroup defaultValue="range-2" className="space-y-3 pt-2">
-                                {priceRanges.map((range, i) => (<div key={i} className="flex items-center space-x-2"><RadioGroupItem value={range} id={range} /><Label htmlFor={range} className="font-normal cursor-pointer">{range}</Label></div>))}
-                            </RadioGroup>
-                        </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="brand"><AccordionTrigger className="text-sm font-semibold">Thương hiệu</AccordionTrigger>
-                        <AccordionContent>
-                            <div className="space-y-3 pt-2">
-                                {brands.map((brand) => (<div key={brand} className="flex items-center space-x-2"><Checkbox id={brand} /><Label htmlFor={brand} className="font-normal cursor-pointer">{brand}</Label></div>))}
-                            </div>
-                        </AccordionContent>
-                    </AccordionItem>
-                </Accordion>
-            </div>
-        </div>
-    );
-}
+// function ProductFilters() {
+//     // Component không đổi
+//     const brands = ["Blackmores", "OstroVit", "Healthy Care", "Swisse", "Puritan's Pride"];
+//     const priceRanges = ["Dưới 100.000đ", "100.000đ - 200.000đ", "200.000đ - 500.000đ", "Trên 500.000đ"];
+//     return (
+//         <div className="w-full rounded-lg border bg-white shadow-sm">
+//             <div className="p-4">
+//                 <h3 className="text-base font-bold mb-2">Bộ lọc nâng cao</h3>
+//                 <Accordion type="multiple" defaultValue={['price', 'brand']} className="w-full">
+//                     <AccordionItem value="price"><AccordionTrigger className="text-sm font-semibold">Giá</AccordionTrigger>
+//                         <AccordionContent>
+//                             <RadioGroup defaultValue="range-2" className="space-y-3 pt-2">
+//                                 {priceRanges.map((range, i) => (<div key={i} className="flex items-center space-x-2"><RadioGroupItem value={range} id={range} /><Label htmlFor={range} className="font-normal cursor-pointer">{range}</Label></div>))}
+//                             </RadioGroup>
+//                         </AccordionContent>
+//                     </AccordionItem>
+//                     <AccordionItem value="brand"><AccordionTrigger className="text-sm font-semibold">Thương hiệu</AccordionTrigger>
+//                         <AccordionContent>
+//                             <div className="space-y-3 pt-2">
+//                                 {brands.map((brand) => (<div key={brand} className="flex items-center space-x-2"><Checkbox id={brand} /><Label htmlFor={brand} className="font-normal cursor-pointer">{brand}</Label></div>))}
+//                             </div>
+//                         </AccordionContent>
+//                     </AccordionItem>
+//                 </Accordion>
+//             </div>
+//         </div>
+//     );
+// }
 
 
-function ProductGrid({ products, title }: { products: Product[]; title: string; }) {
-    // Component không đổi
+function ProductGrid({ products, title, sortBy, onSortChange }: { products: Product[]; title: string; sortBy: string; onSortChange: (value: string) => void; }) {
+    const INITIAL_ITEM_COUNT = 8;
+    const MORE_ITEM_COUNT = 4;
+    const [visibleCount, setVisibleCount] = useState(INITIAL_ITEM_COUNT);
+
+    const handleLoadMore = () => {
+        setVisibleCount(prevCount => prevCount + MORE_ITEM_COUNT);
+    };
+
+    // Reset lại số lượng khi danh sách sản phẩm hoặc bộ lọc thay đổi
+    useEffect(() => {
+        setVisibleCount(INITIAL_ITEM_COUNT);
+    }, [products]);
+
+    const productsToShow = products.slice(0, visibleCount);
+    const remainingCount = products.length - visibleCount;
     return (
         <div className="w-full">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 p-4 bg-white rounded-lg border">
                 <h1 className="text-lg font-bold text-gray-900 mb-2 md:mb-0">{title} ({products.length} sản phẩm)</h1>
                 <div className="flex items-center space-x-2">
                     <Label htmlFor="sort-by" className="text-sm text-gray-600 shrink-0">Sắp xếp theo</Label>
-                    <Select defaultValue="popular">
+                    <Select value={sortBy} onValueChange={onSortChange}>
                         <SelectTrigger id="sort-by" className="w-[180px] bg-white"><SelectValue placeholder="Phổ biến" /></SelectTrigger>
-                        <SelectContent><SelectItem value="popular">Phổ biến</SelectItem><SelectItem value="price-asc">Giá: Tăng dần</SelectItem><SelectItem value="price-desc">Giá: Giảm dần</SelectItem><SelectItem value="newest">Mới nhất</SelectItem></SelectContent>
+                        <SelectContent>
+                            <SelectItem value="popular">Phổ biến</SelectItem>
+                            <SelectItem value="price-asc">Giá: Tăng dần</SelectItem>
+                            <SelectItem value="price-desc">Giá: Giảm dần</SelectItem>
+                            <SelectItem value="newest">Mới nhất</SelectItem>
+                        </SelectContent>
                     </Select>
                 </div>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mt-6">
+             {products.length > 0 ? (
+                <>
+                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mt-6">
+                        {productsToShow.map((product) => (
+                            <ProductCard key={product.id} product={product} />
+                        ))}
+                    </div>
+
+                    {/* ⭐ BƯỚC 3: HIỂN THỊ NÚT "XEM THÊM" */}
+                    {remainingCount > 0 && (
+                        <div className="mt-8 text-center">
+                            <Button variant="outline" onClick={handleLoadMore}>
+                                Xem thêm {remainingCount} sản phẩm
+                            </Button>
+                        </div>
+                    )}
+                </>
+            ) : (
+                <div className="text-center text-gray-500 py-16 border-2 border-dashed rounded-lg">
+                    Không có sản phẩm nào phù hợp với bộ lọc.
+                </div>
+            )}
+            {/* <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mt-6">
                 {products.map((product) => (<ProductCard key={product.id} product={product} />))}
-            </div>
+            </div> */}
         </div>
     );
 }
@@ -301,9 +340,60 @@ export default function ProductsPage() {
     const [subCategories, setSubCategories] = useState<Subcategory[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [sortBy, setSortBy] = useState('popular');
 
     const params = useParams();
     const pathname = usePathname();
+
+    const [filters, setFilters] = useState<{ brands: string[], priceRange: string | null }>({ brands: [], priceRange: null });
+    const [availableBrands, setAvailableBrands] = useState<string[]>([]);
+
+    const filteredProducts = useMemo(() => {
+        let tempProducts = [...products];
+
+        // Lọc theo thương hiệu
+        if (filters.brands.length > 0) {
+            tempProducts = tempProducts.filter(p => p.brand_name && filters.brands.includes(p.brand_name));
+            }
+
+        // Lọc theo giá
+        if (filters.priceRange) {
+            const range = filters.priceRange;
+                tempProducts = tempProducts.filter(p => {
+                    const price = p.variants[0] ? parseFloat(p.variants[0].price) : 0;
+                    if (range === "Dưới 100.000đ") return price < 100000;
+                    if (range === "100.000đ - 200.000đ") return price >= 100000 && price <= 200000;
+                    if (range === "200.000đ - 500.000đ") return price >= 200000 && price <= 500000;
+                    if (range === "Trên 500.000đ") return price > 500000;
+                    return true;
+                });
+            }
+        
+         const getDefaultPrice = (product: Product): number => {
+            const defaultVariant = product.variants?.find(v => v.is_default === 1) || product.variants?.[0];
+            return defaultVariant ? parseFloat(defaultVariant.price) : 0;
+        };
+
+        switch (sortBy) {
+            case 'price-asc':
+                tempProducts.sort((a, b) => getDefaultPrice(a) - getDefaultPrice(b));
+                break;
+            case 'price-desc':
+                tempProducts.sort((a, b) => getDefaultPrice(b) - getDefaultPrice(a));
+                break;
+            case 'newest':
+                tempProducts.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+                break;
+            case 'popular':
+            default:
+                // Giữ nguyên thứ tự mặc định từ API (thường là phổ biến nhất)
+                break;
+        }
+            
+            return tempProducts;
+         
+        }, [products, filters, sortBy]);
+    
 
     const getCurrentSlug = () => {
         if (!params) return '';
@@ -340,6 +430,8 @@ export default function ProductsPage() {
                 setPageTitle(categoryInfo.name);
                 setBreadcrumbItems([{ title: "Trang chủ", href: "/" }, ...breadcrumb]);
                 setProducts(Array.isArray(products) ? products : []);
+                const brands = [...new Set(products.map(p => p.brand_name).filter(Boolean))] as string[];
+                setAvailableBrands(brands);
 
                 if (subCategoriesRes.ok) {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -401,10 +493,14 @@ export default function ProductsPage() {
                 )}
                 <div className="flex flex-col lg:flex-row lg:space-x-8">
                     <aside className="w-full lg:w-1/4 xl:w-1/5 mb-8 lg:mb-0 shrink-0">
-                        <ProductFilters />
+                        <ProductFilters 
+                            availableBrands={availableBrands}
+                            onFilterChange={setFilters}
+                        />
                     </aside>
                     <section className="w-full lg:w-3/4 xl:w-4/5">
-                        <ProductGrid products={products} title={pageTitle || 'Tất cả sản phẩm'} />
+                        <ProductGrid products={filteredProducts} title={pageTitle || 'Tất cả sản phẩm'} sortBy={sortBy}
+                        onSortChange={setSortBy} />
                     </section>
                 </div>
             </main>
