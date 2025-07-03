@@ -177,12 +177,14 @@ const HomeArticles = () => {
 
     fetch(endpoint)
       .then((res) => res.json())
-      .then((data: Post[] | null) => {
+      .then((data: { success: boolean, data: Post[] }) => {
+          const posts = (data.success && Array.isArray(data.data)) ? data.data : [];
+
         console.log("Bài viết:", data);
-        if (data && data.length > 0) {
-          setFeaturedArticle(data[0]);
-          setNewsColumn1(data.slice(1, 4));
-          setNewsColumn2(data.slice(4, 7));
+        if (posts && posts.length > 0) {
+          setFeaturedArticle(posts[0]);
+          setNewsColumn1(posts.slice(1, 4));
+          setNewsColumn2(posts.slice(4, 7));
         } else {
           setFeaturedArticle(null);
           setNewsColumn1([]);
