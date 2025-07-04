@@ -125,15 +125,15 @@ const ProductCard: FC<ProductCardProps> = ({ product }) => {
             <CardContent className="p-3 pt-0 flex flex-col flex-grow">
                 <h3 className="font-medium text-sm mb-2 h-10 line-clamp-2 text-gray-800 group-hover:text-primary transition-colors">{product.name}</h3>
                 
-                <div className="h-[40px] mb-2 flex items-center">
+                <div className="h-[40px] flex items-center">
                     {product.variants.length > 1 ? (
-                        <div className="flex flex-wrap gap-1">
+                        <div className="flex flex-wrap gap-1 cursor-pointer">
                             {product.variants.map(variant => (
                                 <Button 
                                     key={variant.id} 
                                     variant={selectedVariant.id === variant.id ? "default" : "outline"} 
                                     size="sm" 
-                                    className={`px-2 py-0 h-7 text-xs transition-all ${selectedVariant.id === variant.id ? 'bg-primary text-white' : 'border-gray-300'}`} 
+                                    className={`px-2 py-0 h-7 text-xs transition-all cursor-pointer ${selectedVariant.id === variant.id ? 'bg-rose-500 text-white' : 'border-gray-300'}`} 
                                     onClick={(e) => handleVariantChange(e, variant)}
                                 >
                                     {variant.unit_name}
@@ -146,13 +146,13 @@ const ProductCard: FC<ProductCardProps> = ({ product }) => {
                 </div>
                 
                 <div className="space-y-1 mt-auto">
-                    <p className="text-primary font-bold text-lg">{formatPrice(priceData.discounted)}₫</p>
+                    <p className="text-rose-500 font-bold text-lg">{formatPrice(priceData.discounted)}₫</p>
                     {priceData.original && (
                         <p className="text-gray-500 text-sm line-through">{formatPrice(priceData.original)}₫</p>
                     )}
                 </div>
 
-                <Button size="sm" className="w-full mt-3 bg-primary/90 hover:bg-primary text-white" onClick={handleAddToCart}>
+                <Button size="sm" className="cursor-pointer w-full mt-3 bg-rose-500 hover:bg-primary text-white" onClick={handleAddToCart}>
                     Thêm vào giỏ
                 </Button>
             </CardContent>

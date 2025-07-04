@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 // import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -20,8 +20,6 @@ import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
 import { Product, Variant } from '@/types/product';
 import ProductFilters from '@/components/ProductFilters';
-
-
 
 // INTERFACES ĐÃ ĐƯỢC CẬP NHẬT VÀ CHUẨN HÓA
 interface BreadcrumbItemType {
@@ -48,149 +46,118 @@ interface ApiResponse {
     message?: string;
 }
 
-const formatCurrency = (price: number | string) => {
-    const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
-    if (isNaN(numericPrice)) return '0₫';
-    return numericPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + '₫';
-};
+// const formatCurrency = (price: number | string) => {
+//     const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
+//     if (isNaN(numericPrice)) return '0₫';
+//     return numericPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") + '₫';
+// };
 
 function ProductCard({ product }: { product: Product }) {
-    // MỚI: Tích hợp hook để sử dụng giỏ hàng và điều hướng
     const router = useRouter();
     const { addToCart } = useCart();
+    const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
 
-    const [selectedVariant, setSelectedVariant] = useState<Variant | null>(
-        // Chọn variant mặc định thông minh hơn
-        product.variants?.find(v => v.is_default === 1) || product.variants?.[0] || null
-    );
-
-    // MỚI: Hàm xử lý thêm vào giỏ hàng
-    const handleAddToCart = (e: React.MouseEvent) => {
-        e.stopPropagation(); // Ngăn không cho Link của card điều hướng trang
-
-        if (!selectedVariant) {
-            toast.error("Vui lòng chọn một loại sản phẩm.");
-            return;
+    useEffect(() => {
+        if (product.variants && product.variants.length > 0) {
+            const defaultVariant = product.variants.find(v => v.is_default === 1) || product.variants[0];
+            setSelectedVariant(defaultVariant);
         }
+    }, [product.variants]);
 
-        const primaryImageObject = product.images?.find(img => img.is_primary) || product.images?.[0];
-        const imageUrl = primaryImageObject ? `https://nhathuoc.trafficnhanh.com${primaryImageObject.image_url}` : "";
+    const priceData = useMemo(() => {
+        if (!selectedVariant) return { discounted: 0, original: 0, discountPercent: 0, hasDiscount: false };
+        const discounted = parseFloat(selectedVariant.price);
+        const original = parseFloat(selectedVariant.original_price || '0');
+        let discountPercent = 0;
+        if (original > 0 && discounted < original) {
+            discountPercent = Math.round(((original - discounted) / original) * 100);
+        }
+        return { discounted, original, discountPercent, hasDiscount: discountPercent > 0 };
+    }, [selectedVariant]);
 
-        const itemToAdd = {
-            productId: String(product.id),
+    const handleVariantChange = (e: React.MouseEvent, variant: Variant) => {
+        e.stopPropagation();
+        setSelectedVariant(variant);
+    };
+
+    const handleAddToCart = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!selectedVariant) return;
+        
+        const primaryImage = product.images?.find(img => img.is_primary === 1) || product.images?.[0];
+        const imageUrl = primaryImage ? `https://nhathuoc.trafficnhanh.com${primaryImage.image_url}` : "";
+
+        addToCart({
+            productId: product.id,
             variantId: String(selectedVariant.id),
             name: product.name,
             image: imageUrl,
-            price: Number(selectedVariant.price),
+            price: priceData.discounted,
             quantity: 1,
             type: selectedVariant.unit_name,
-        };
-
-        addToCart(itemToAdd);
-
-        toast.success("Đã thêm vào giỏ hàng!", {
-            description: `${product.name} (${selectedVariant.unit_name})`,
-            action: {
-                label: "Xem giỏ",
-                onClick: () => router.push('/gio-hang'),
-            },
         });
+        toast.success(`Đã thêm "${product.name}" vào giỏ hàng!`);
     };
 
-    // Logic hiển thị không đổi
-    const domain = "https://nhathuoc.trafficnhanh.com";
-    const placeholderProduct = "/placeholder.svg";
-    const primaryImageObject = product.images?.find(img => img.is_primary) || product.images?.[0];
-    const primaryImage = primaryImageObject ? `${domain}${primaryImageObject.image_url}` : placeholderProduct;
+    const handleCardClick = () => { router.push(`/san-pham/${product.slug}`); };
+    const formatPrice = (price: number) => price.toLocaleString('vi-VN') + '₫';
+    
+    const primaryImageObject = product.images?.find(img => img.is_primary === 1) || product.images?.[0];
+    const primaryImage = primaryImageObject ? `https://nhathuoc.trafficnhanh.com${primaryImageObject.image_url}` : "/placeholder.svg";
 
-    const price = selectedVariant ? parseFloat(selectedVariant.price) : 0;
-    const originalPrice = selectedVariant ? parseFloat(selectedVariant.original_price) : 0;
-    const discountPercent = (originalPrice > 0 && originalPrice > price) ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
-    const availableTypes = product.variants ? [...new Set(product.variants.map(v => v.unit_name))] : [];
+    if (!selectedVariant) return <Card className="h-full animate-pulse bg-gray-200"></Card>;
 
     return (
-        <Card className="flex flex-col justify-between w-full h-full rounded-lg overflow-hidden border border-gray-200 shadow-sm hover:shadow-xl transition-shadow duration-300 group">
-            <CardContent className="p-0 relative">
-                <Link href={`/san-pham/${product.slug}`} className="block">
-                    <div className="aspect-square w-full relative overflow-hidden bg-gray-100">
-                        <Image
-                            src={primaryImage}
-                            alt={product.name}
-                            fill
-                            sizes="(max-width: 768px) 50vw, 20vw"
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                            onError={(e) => { e.currentTarget.src = placeholderProduct; }}
-                        />
-                    </div>
-                </Link>
-
-                <div className="absolute top-2 left-2 right-2 flex justify-between items-start">
-                    <div className="flex flex-col space-y-1">
-                        {discountPercent > 0 && (
-                            <Badge variant="destructive" className="text-xs font-bold">-{discountPercent}%</Badge>
-                        )}
-                        {product.is_hotsale === 1 && (
-                            <Badge className="bg-green-100 text-green-700 border-green-300 text-xs font-semibold">Hot Sale</Badge>
-                        )}
-                    </div>
-                    {product.brand_name && (
-                        <Badge variant="secondary" className="text-xs">{product.brand_name}</Badge>
-                    )}
-                </div>
-
-                <div className="p-3">
-                    <Link href={`/san-pham/${product.slug}`} className="block">
-                        <h3 className="text-sm font-semibold text-gray-800 h-12 overflow-hidden text-ellipsis line-clamp-2 hover:text-blue-600">
-                            {product.name}
-                        </h3>
-                    </Link>
-
-                    {availableTypes.length > 1 && (
-                        <div className="mt-2 mb-2 h-[28px] overflow-hidden">
-                            <div className="flex flex-wrap gap-1">
-                                {availableTypes.map((type) => {
-                                    const variant = product.variants?.find(v => v.unit_name === type);
-                                    return (
-                                        <Button
-                                            key={type}
-                                            variant={selectedVariant?.unit_name === type ? "default" : "outline"}
-                                            size="sm"
-                                            className={`px-2 py-0 h-6 text-xs ${selectedVariant?.unit_name === type ? "bg-blue-500 hover:bg-blue-600 text-white" : "text-gray-700 border-gray-300"}`}
-                                            onClick={(e) => { e.stopPropagation(); if (variant) setSelectedVariant(variant); }}
-                                        >
-                                            {type}
-                                        </Button>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="mt-2 flex flex-col items-start h-[48px]">
-                        {selectedVariant && (
-                            <>
-                                <span className="text-lg font-bold text-blue-600">
-                                    {formatCurrency(price)}
-                                    <span className="text-gray-600 font-normal text-sm"> / {selectedVariant.unit_name}</span>
-                                </span>
-                                {discountPercent > 0 && (
-                                    <span className="text-xs text-gray-500 line-through">{formatCurrency(originalPrice)}</span>
-                                )}
-                            </>
-                        )}
-                    </div>
-                </div>
-            </CardContent>
-            <CardFooter className="p-3 pt-0">
-                {/* THAY ĐỔI: Cập nhật nút bấm */}
-                <Button
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold"
-                    onClick={handleAddToCart}
-                >
-                    Thêm vào giỏ hàng
-                </Button>
-            </CardFooter>
-        </Card>
+            <Card onClick={handleCardClick} className="group flex flex-col h-full bg-white border rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer">
+                 <div className="block overflow-hidden p-4 relative">
+                     {priceData.discountPercent > 0 && (
+                         <Badge className="absolute top-2 left-2 bg-rose-500 text-white z-10">
+                             Giảm {priceData.discountPercent}%
+                         </Badge>
+                     )}
+                     {product.subcategory_name && <Badge variant="secondary" className="absolute top-2 right-2 z-10">{product.subcategory_name}</Badge>}
+                     
+                     <div className="relative aspect-square">
+                         {primaryImage && (
+                             <Image src={primaryImage} alt={product.name} fill sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw" className="object-contain transition-transform duration-300 group-hover:scale-105" />
+                         )}
+                     </div>
+                 </div>
+                 <CardContent className="p-3 pt-0 flex flex-col flex-grow">
+                     <h3 className="font-medium text-sm mb-2 h-10 line-clamp-2 text-gray-800 group-hover:text-primary transition-colors">{product.name}</h3>
+                     
+                     <div className="h-[40px] flex items-center">
+                         {product.variants.length > 1 ? (
+                             <div className="flex flex-wrap gap-1 cursor-pointer">
+                                 {product.variants.map(variant => (
+                                     <Button 
+                                         key={variant.id} 
+                                         variant={selectedVariant.id === variant.id ? "default" : "outline"} 
+                                         size="sm" 
+                                         className={`px-2 py-0 h-7 text-xs transition-all cursor-pointer ${selectedVariant.id === variant.id ? 'bg-rose-500 text-white' : 'border-gray-300'}`} 
+                                         onClick={(e) => handleVariantChange(e, variant)}
+                                     >
+                                         {variant.unit_name}
+                                     </Button>
+                                 ))}
+                             </div>
+                         ) : (
+                             <div className="text-xs text-gray-500">{product.variants[0]?.unit_name}</div>
+                         )}
+                     </div>
+                     
+                     <div className="space-y-1 mt-auto">
+                         <p className="text-rose-500 font-bold text-lg">{formatPrice(priceData.discounted)}₫</p>
+                         {priceData.original && (
+                             <p className="text-gray-500 text-sm line-through">{formatPrice(priceData.original)}₫</p>
+                         )}
+                     </div>
+     
+                     <Button size="sm" className="cursor-pointer w-full mt-3 bg-rose-500 hover:bg-primary text-white" onClick={handleAddToCart}>
+                         Thêm vào giỏ
+                     </Button>
+                 </CardContent>
+             </Card>
     );
 }
 
