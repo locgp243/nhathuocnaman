@@ -9,7 +9,7 @@ import { Search } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import type { Post, PostCategory } from "@/types/ArticleCard" // Đảm bảo đường dẫn đúng
 import { API_BASE_URL } from "@/lib/api"
-import { toast } from "sonner"
+
 // ===================================================================
 // HÀM HELPER ĐỂ TẠO MÀU (Được đặt trực tiếp trong file này)
 // ===================================================================
@@ -88,122 +88,59 @@ export default function HealthCornerPage() {
   const [sidebarFeatured, setSidebarFeatured] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const fetchAndParse = async (response: Response): Promise<any[]> => {
-        if (!response.ok) {
-            console.error("API request failed:", response.statusText);
-            return []; // Trả về mảng rỗng nếu request thất bại
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+
+        const categoriesToFetch = [
+            { key: 'benhVien', slug: 'benh-vien' },
+            { key: 'sucKhoeTreEm', slug: 'suc-khoe-tre-em' },
+            { key: 'phucHoiSauSinh', slug: 'phuc-hoi-sau-sinh' }
+        ];
+
+        const [
+          heroRes,
+          generalRes,
+          sidebarCatRes,
+          sidebarFeaturedRes,
+          ...categorySectionsRes
+        ] = await Promise.all([
+          fetch(`${API_BASE_URL}/posts.php?action=doc&featured=true&limit=1`),
+          fetch(`${API_BASE_URL}/posts.php?action=doc&limit=7`), 
+          fetch(`${API_BASE_URL}/categories.php?action=doc_danh_muc_bai_viet`),
+          fetch(`${API_BASE_URL}/posts.php?action=doc&featured=true&limit=3`),
+          ...categoriesToFetch.map(cat => fetch(`${API_BASE_URL}/posts.php?action=doc&category_slug=${cat.slug}&limit=4`))
+        ]);
+
+        const heroData = await heroRes.json();
+        const generalData = await generalRes.json();
+        const sidebarCatData = await sidebarCatRes.json();
+        const sidebarFeaturedData = await sidebarFeaturedRes.json();
+
+        setHeroArticle(heroData?.[0] || generalData?.[0] || null);
+        setGeneralArticles(generalData?.slice(1, 7) || []);
+        setSidebarCategories(sidebarCatData || []);
+        setSidebarFeatured(sidebarFeaturedData || []);
+        
+        const sectionsData: Record<string, Post[]> = {};
+        for (let i = 0; i < categoriesToFetch.length; i++) {
+            const key = categoriesToFetch[i].key;
+            const data = await categorySectionsRes[i].json();
+            sectionsData[key] = data;
         }
-        const result = await response.json();
-        // Luôn trả về mảng data nếu success, nếu không thì trả về mảng rỗng
-        return (result.success && Array.isArray(result.data)) ? result.data : [];
+        setCategorySections(sectionsData);
+
+      } catch (error) {
+        console.error("Lỗi khi tải dữ liệu trang Góc sức khỏe:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setIsLoading(true);
-
-                const categoriesToFetch = [
-                    { key: 'benhVien', slug: 'benh-vien' },
-                    { key: 'sucKhoeTreEm', slug: 'suc-khoe-tre-em' },
-                    { key: 'phucHoiSauSinh', slug: 'phuc-hoi-sau-sinh' }
-                ];
-                
-                // ⭐ BƯỚC 2: GỌI API VÀ XỬ LÝ ĐỒNG BỘ
-                const [
-                    heroData,
-                    generalData,
-                    sidebarCatData,
-                    sidebarFeaturedData,
-                    ...categorySectionsResults
-                ] = await Promise.all([
-                    fetch(`${API_BASE_URL}/posts.php?action=doc_tat_ca&featured=true&limit=1`).then(fetchAndParse),
-                    fetch(`${API_BASE_URL}/posts.php?action=doc_tat_ca&limit=7`).then(fetchAndParse), 
-                    fetch(`${API_BASE_URL}/categories.php?action=doc_danh_muc_bai_viet`).then(res => res.json()), // Giả sử API này trả về mảng trực tiếp
-                    fetch(`${API_BASE_URL}/posts.php?action=doc_tat_ca&featured=true&limit=3`).then(fetchAndParse),
-                    ...categoriesToFetch.map(cat => fetch(`${API_BASE_URL}/posts.php?action=doc_tat_ca&category_slug=${cat.slug}&limit=4`).then(fetchAndParse))
-                ]);
-
-                // ⭐ BƯỚC 3: SET STATE TỪ DỮ LIỆU ĐÃ ĐƯỢC XỬ LÝ
-                // Giờ đây heroData, generalData... đều là các mảng sạch
-                setHeroArticle(heroData[0] || generalData[0] || null);
-                setGeneralArticles(generalData.slice(1, 7));
-                setSidebarCategories(Array.isArray(sidebarCatData) ? sidebarCatData : []);
-                setSidebarFeatured(sidebarFeaturedData);
-                
-                const sectionsData: Record<string, Post[]> = {};
-                for (let i = 0; i < categoriesToFetch.length; i++) {
-                    const key = categoriesToFetch[i].key;
-                    sectionsData[key] = categorySectionsResults[i];
-                }
-                setCategorySections(sectionsData);
-
-            } catch (error) {
-                console.error("Lỗi khi tải dữ liệu trang Góc sức khỏe:", error);
-                toast.error("Không thể tải dữ liệu", { description: "Đã có lỗi xảy ra, vui lòng thử lại sau." });
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []); // useEffect này chỉ chạy 1 lần
-
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       setIsLoading(true);
-
-  //       const categoriesToFetch = [
-  //           { key: 'benhVien', slug: 'benh-vien' },
-  //           { key: 'sucKhoeTreEm', slug: 'suc-khoe-tre-em' },
-  //           { key: 'phucHoiSauSinh', slug: 'phuc-hoi-sau-sinh' }
-  //       ];
-
-  //       const [
-  //         heroRes,
-  //         generalRes,
-  //         sidebarCatRes,
-  //         sidebarFeaturedRes,
-  //         ...categorySectionsRes
-  //       ] = await Promise.all([
-  //         fetch(`${API_BASE_URL}/posts.php?action=doc_tat_ca&featured=true&limit=1`),
-  //         fetch(`${API_BASE_URL}/posts.php?action=doc_tat_ca&limit=7`), 
-  //         fetch(`${API_BASE_URL}/categories.php?action=doc_tat_ca_danh_muc_bai_viet`),
-  //         fetch(`${API_BASE_URL}/posts.php?action=doc_tat_ca&featured=true&limit=3`),
-  //         ...categoriesToFetch.map(cat => fetch(`${API_BASE_URL}/posts.php?action=doc_tat_ca&category_slug=${cat.slug}&limit=4`))
-  //       ]);
-
-  //       const heroData = await heroRes.json();
-  //       const generalData = await generalRes.json();
-  //       const sidebarCatData = await sidebarCatRes.json();
-  //       const sidebarFeaturedData = await sidebarFeaturedRes.json();
-
-  //       setHeroArticle(heroData?.[0] || generalData?.[0] || null);
-  //       setGeneralArticles(generalData?.slice(1, 7) || []);
-  //       setSidebarCategories(sidebarCatData || []);
-  //       setSidebarFeatured(sidebarFeaturedData || []);
-        
-  //       const sectionsData: Record<string, Post[]> = {};
-  //       for (let i = 0; i < categoriesToFetch.length; i++) {
-  //           const key = categoriesToFetch[i].key;
-  //           const data = await categorySectionsRes[i].json();
-  //           sectionsData[key] = data;
-  //       }
-  //       setCategorySections(sectionsData);
-
-  //     } catch (error) {
-  //       console.error("Lỗi khi tải dữ liệu trang Góc sức khỏe:", error);
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
-
-  //   fetchData();
-  // // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [API_BASE_URL]);
+    fetchData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [API_BASE_URL]);
 
   if (isLoading) {
       return <div className="container mx-auto px-4 py-4 text-center">Đang tải dữ liệu...</div>;
@@ -243,7 +180,8 @@ export default function HealthCornerPage() {
           <div className="lg:col-span-2 space-y-8">
             {/* Hero Article */}
             {heroArticle && (
-                  <Link href={`/tin-tuc/goc-suc-khoe/${heroArticle.slug}`} className="block group bg-white rounded-lg shadow-sm overflow-hidden">
+                <Link href={`/tin-tuc/goc-suc-khoe/${heroArticle.slug}`} legacyBehavior>
+                    <a className="block group bg-white rounded-lg shadow-sm overflow-hidden">
                         <div className="relative aspect-video">
                             <Image src={`https://nhathuoc.trafficnhanh.com${heroArticle.image_url}`} alt={heroArticle.title} fill className="object-cover"/>
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -251,6 +189,7 @@ export default function HealthCornerPage() {
                                 <h2 className="text-white text-2xl font-bold line-clamp-2 group-hover:underline">{heroArticle.title}</h2>
                             </div>
                         </div>
+                    </a>
                 </Link>
             )}
 

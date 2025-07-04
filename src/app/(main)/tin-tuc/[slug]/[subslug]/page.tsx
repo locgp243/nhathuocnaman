@@ -20,7 +20,7 @@ const RelatedPostCard = ({ post }: { post: PostType }) => (
     <Card className="h-full overflow-hidden shadow-sm hover:shadow-lg transition-shadow">
       <div className="relative aspect-video">
         <Image
-          src={`https://nhathuoc.trafficnhanh.com${post.image_url || ""}`}
+          src={`https://nhathuoc.trafficnhanh.com${post.image_url || "/images/placeholder.jpg"}`}
           alt={post.title}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -38,47 +38,37 @@ const RelatedPostCard = ({ post }: { post: PostType }) => (
 
 // --- HÀM LẤY DỮ LIỆU TRÊN SERVER ---
 async function getPostData(slug: string, subslug: string) {
-    try {
-        // 1. Fetch bài viết chính
-        const postRes = await fetch(`${API_BASE_URL}/posts.php?action=doc_chi_tiet&slug=${subslug}`, {
-            next: { revalidate: 3600 } 
-        });
-        
-        if (!postRes.ok) {
-            return notFound(); // Nếu API lỗi, trả về trang 404
-        }
-
-        // ⭐ SỬA LỖI 1: Bóc tách đúng cấu trúc { success, data }
-        const postResult = await postRes.json();
-        if (!postResult.success || !postResult.data) {
-            return notFound(); // Nếu API báo lỗi hoặc không có data, trả về 404
-        }
-        const post: PostDetail = postResult.data;
-
-        // 2. Fetch các bài viết liên quan
-        let relatedPosts: PostType[] = [];
-        const primaryCategorySlug = post.categories?.[0]?.slug;
-
-        if (primaryCategorySlug) {
-            // ⭐ SỬA LỖI 2: Dùng đúng action `get_all_posts`
-            const relatedRes = await fetch(`${API_BASE_URL}/posts.php?action=doc_tat_ca&category_slug=${primaryCategorySlug}&limit=4`);
-            
-            if(relatedRes.ok) {
-                // ⭐ SỬA LỖI 3: Bóc tách đúng cấu trúc { success, data }
-                const relatedResult = await relatedRes.json();
-                if (relatedResult.success && Array.isArray(relatedResult.data)) {
-                    // Loại bỏ bài viết hiện tại và lấy 3 bài
-                    relatedPosts = relatedResult.data.filter((p: PostType) => p.id !== post.id).slice(0, 3);
-                }
-            }
-        }
-        
-        return { post, relatedPosts };
-
-    } catch (error) {
-        console.error("Lỗi khi tải dữ liệu bài viết:", error);
-        return notFound();
+  try {
+    // 1. Fetch bài viết chính
+    const postRes = await fetch(`${API_BASE_URL}/posts.php?action=doc_chi_tiet&slug=${subslug}`, {
+      next: { revalidate: 3600 } // Cache dữ liệu trong 1 giờ
+    });
+    
+    if (!postRes.ok) {
+      return notFound();
     }
+    const post: PostDetail = await postRes.json();
+
+    // 2. Fetch các bài viết liên quan
+    let relatedPosts: PostType[] = [];
+    if (post.categories && post.categories.length > 0) {
+      const primaryCategorySlug = post.categories[0].slug;
+      const relatedRes = await fetch(`${API_BASE_URL}/posts.php?action=read_posts&category_slug=${primaryCategorySlug}&limit=4`, {
+          next: { revalidate: 3600 }
+      });
+      if(relatedRes.ok) {
+          const relatedData: PostType[] = await relatedRes.json();
+          // Loại bỏ bài viết hiện tại và lấy 3 bài
+          relatedPosts = relatedData.filter(p => p.id !== post.id).slice(0, 3);
+      }
+    }
+    
+    return { post, relatedPosts };
+
+  } catch (error) {
+    console.error("Lỗi khi tải dữ liệu bài viết:", error);
+    return notFound();
+  }
 }
 
 // --- COMPONENT CHÍNH ---
@@ -120,7 +110,7 @@ export default async function PostDetailPage({
               <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <User size={14} />
-                  <span>{post.author_name}</span>
+                  <span>{post.author_name || 'Nam An Pharmacy'}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar size={14} />
@@ -180,7 +170,7 @@ export default async function PostDetailPage({
               <h3 className="text-lg font-bold mb-4 border-b pb-2">Về Tác giả</h3>
               <div className="flex items-center gap-4">
                   <div>
-                    <h4 className="font-semibold">{post.author_name}</h4>
+                    <h4 className="font-semibold">{post.author_name || 'Nam An Pharmacy'}</h4>
                     <p className="text-sm text-muted-foreground">Cung cấp thông tin sức khỏe đáng tin cậy.</p>
                   </div>
               </div>
