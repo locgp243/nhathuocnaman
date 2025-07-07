@@ -29,7 +29,7 @@ import { API_BASE_URL } from "@/lib/api"
 
 // Component con cho một bài viết trong lưới
 const ArticleCard = ({ article }: { article: Post }) => (
-  <Link href={`/goc-suc-khoe/${article.slug}`} legacyBehavior>
+  <Link href={`/bai-viet/${article.slug}`} legacyBehavior>
     <a className="block group bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200">
       <div className="relative">
         {article.category_title && (
@@ -59,7 +59,7 @@ const ArticleCard = ({ article }: { article: Post }) => (
 
 // Component con cho bài viết trong sidebar
 const SidebarArticle = ({ article }: { article: Post }) => (
-  <Link href={`/goc-suc-khoe/${article.slug}`} className="flex group gap-3 items-center">
+  <Link href={`/bai-viet/${article.slug}`} className="flex group gap-3 items-center">
     <div className="w-20 h-20 flex-shrink-0 relative">
       <Image
         src={`https://nhathuoc.trafficnhanh.com${article.image_url}`}
@@ -88,60 +88,60 @@ export default function HealthCornerPage() {
   const [sidebarFeatured, setSidebarFeatured] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-
-        const categoriesToFetch = [
-            { key: 'benhVien', slug: 'benh-vien' },
-            { key: 'sucKhoeTreEm', slug: 'suc-khoe-tre-em' },
-            { key: 'phucHoiSauSinh', slug: 'phuc-hoi-sau-sinh' }
-        ];
-
-        const [
-          heroRes,
-          generalRes,
-          sidebarCatRes,
-          sidebarFeaturedRes,
-          ...categorySectionsRes
-        ] = await Promise.all([
-          fetch(`${API_BASE_URL}/posts.php?action=doc&featured=true&limit=1`),
-          fetch(`${API_BASE_URL}/posts.php?action=doc&limit=7`), 
-          fetch(`${API_BASE_URL}/categories.php?action=doc_danh_muc_bai_viet`),
-          fetch(`${API_BASE_URL}/posts.php?action=doc&featured=true&limit=3`),
-          ...categoriesToFetch.map(cat => fetch(`${API_BASE_URL}/posts.php?action=doc&category_slug=${cat.slug}&limit=4`))
-        ]);
-
-        const heroData = await heroRes.json();
-        const generalData = await generalRes.json();
-        const sidebarCatData = await sidebarCatRes.json();
-        const sidebarFeaturedData = await sidebarFeaturedRes.json();
-
-        setHeroArticle(heroData?.[0] || generalData?.[0] || null);
-        setGeneralArticles(generalData?.slice(1, 7) || []);
-        setSidebarCategories(sidebarCatData || []);
-        setSidebarFeatured(sidebarFeaturedData || []);
-        
-        const sectionsData: Record<string, Post[]> = {};
-        for (let i = 0; i < categoriesToFetch.length; i++) {
-            const key = categoriesToFetch[i].key;
-            const data = await categorySectionsRes[i].json();
-            sectionsData[key] = data;
-        }
-        setCategorySections(sectionsData);
-
-      } catch (error) {
-        console.error("Lỗi khi tải dữ liệu trang Góc sức khỏe:", error);
-      } finally {
-        setIsLoading(false);
-      }
+    const fetchAndParsePosts = async (response: Response): Promise<Post[]> => {
+        if (!response.ok) return [];
+        const result = await response.json();
+        return (result.success && Array.isArray(result.data)) ? result.data : [];
     };
 
-    fetchData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [API_BASE_URL]);
+    // ⭐ BƯỚC 2: CẬP NHẬT LOGIC FETCH DỮ LIỆU
+    useEffect(() => {
+        const fetchData = async () => {
+            setIsLoading(true);
+            try {
+                const categoriesToFetch = [
+                    { key: 'gocsuckhoe', slug: 'goc-suc-khoe', title: 'Góc sức khỏe' },
+                    { key: 'benhthuonggap', slug: 'benh-thuong-gap', title: 'Bệnh thường gặp' },
+                    { key: 'tinkhuyenmai', slug: 'tin-khuyen-mai', title: 'Tin khuyến mãi' }
+                ];
+                
+                // Sử dụng hàm helper để xử lý response
+                const [
+                    heroData,
+                    generalData,
+                    sidebarCatData,
+                    sidebarFeaturedData,
+                    ...categorySectionsData
+                ] = await Promise.all([
+                    fetch(`${API_BASE_URL}/posts.php?action=doc_tat_ca&featured=true&limit=1`).then(fetchAndParsePosts),
+                    fetch(`${API_BASE_URL}/posts.php?action=doc_tat_ca&limit=7`).then(fetchAndParsePosts),
+                    fetch(`${API_BASE_URL}/categories.php?action=doc_danh_muc_bai_viet`).then(res => res.json()),
+                    fetch(`${API_BASE_URL}/posts.php?action=doc_tat_ca&featured=true&limit=3`).then(fetchAndParsePosts),
+                    ...categoriesToFetch.map(cat => fetch(`${API_BASE_URL}/posts.php?action=doc_tat_ca&category_slug=${cat.slug}&limit=4`).then(fetchAndParsePosts))
+                ]);
+                
+                // ⭐ BƯỚC 3: SET STATE TỪ DỮ LIỆU ĐÃ SẠCH
+                setHeroArticle(heroData[0] || generalData[0] || null);
+                setGeneralArticles(generalData.slice(1));
+              setSidebarCategories(Array.isArray(sidebarCatData) ? [
+                ...sidebarCatData
+                ] : [{ id: "0", title: "Bài viết nổi bật", slug: "featured" }]);
+                setSidebarFeatured(sidebarFeaturedData);
+                
+                const sectionsData: Record<string, Post[]> = {};
+                for (let i = 0; i < categoriesToFetch.length; i++) {
+                    sectionsData[categoriesToFetch[i].key] = categorySectionsData[i];
+                }
+                setCategorySections(sectionsData);
 
+            } catch (error) {
+                console.error("Lỗi khi tải dữ liệu trang Góc sức khỏe:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
   if (isLoading) {
       return <div className="container mx-auto px-4 py-4 text-center">Đang tải dữ liệu...</div>;
   }
@@ -164,7 +164,7 @@ export default function HealthCornerPage() {
         {/* Search Bar & Tabs */}
         <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
           <div className="flex items-center space-x-6">
-            <Link href="/goc-suc-khoe?filter=featured" className="flex items-center text-primary font-medium">
+            <Link href="/" className="flex items-center text-primary font-medium">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
               <span>Bài viết nổi bật</span>
             </Link>
@@ -180,7 +180,7 @@ export default function HealthCornerPage() {
           <div className="lg:col-span-2 space-y-8">
             {/* Hero Article */}
             {heroArticle && (
-                <Link href={`/tin-tuc/goc-suc-khoe/${heroArticle.slug}`} legacyBehavior>
+                <Link href={`/bai-viet/${heroArticle.slug}`} legacyBehavior>
                     <a className="block group bg-white rounded-lg shadow-sm overflow-hidden">
                         <div className="relative aspect-video">
                             <Image src={`https://nhathuoc.trafficnhanh.com${heroArticle.image_url}`} alt={heroArticle.title} fill className="object-cover"/>
@@ -215,7 +215,7 @@ export default function HealthCornerPage() {
                 <div key={key} className="pt-4">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-bold">{sectionInfo.title}</h2>
-                    <Link href={`/goc-suc-khoe/danh-muc/${sectionInfo.slug}`} className="text-primary hover:underline text-sm font-medium">Xem thêm</Link>
+                    <Link href={`/danh-muc/${sectionInfo.slug}`} className="text-primary hover:underline text-sm font-medium">Xem thêm</Link>
                   </div>
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {articles.slice(0, 4).map(article => (
@@ -240,7 +240,7 @@ export default function HealthCornerPage() {
                   // Lấy các lớp màu sắc dựa trên tên danh mục
 
                   return (
-                    <Link key={category.id} href={`/goc-suc-khoe/danh-muc/${category.slug}`} className="flex items-center p-2 hover:bg-gray-100 rounded-md group">
+                    <Link key={category.id} href={`/tin-tuc/benh-va-goc-suc-khoe/${category.slug}`} className="flex items-center p-2 hover:bg-gray-100 rounded-md group">
                       <div className="mr-4 relative w-12 h-12 flex-shrink-0">
                         {category.image_url ? (
                           // Nếu có ảnh, hiển thị ảnh
