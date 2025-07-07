@@ -131,7 +131,7 @@ export default function StandaloneLoginPage() {
                         <form onSubmit={handleSubmit}>
                             <div className="space-y-4">
                                 <Input
-                                    id="identifier" type="text" placeholder="Email hoặc SĐT" required
+                                    id="identifier" type="text" placeholder="SĐT" required
                                     className="p-3 h-12" value={identifier} onChange={(e) => setIdentifier(e.target.value)} disabled={isLoading}
                                 />
                                 <div className="relative">

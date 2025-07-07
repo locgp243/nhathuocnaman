@@ -13,9 +13,9 @@ import { Label } from '@/components/ui/label';
 export default function StandaloneRegisterPage() {
     const router = useRouter();
     
-    // State cho các trường trong form đăng ký
+    // --- STATE CHO FORM ---
     const [fullName, setFullName] = useState('');
-    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState(''); // ⭐ THAY ĐỔI: Từ email sang phone
     const [password, setPassword] = useState('');
     const [rePassword, setRePassword] = useState('');
     
@@ -25,65 +25,51 @@ export default function StandaloneRegisterPage() {
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
 
-        // --- Kiểm tra đầu vào (Không thay đổi) ---
+        // --- Kiểm tra đầu vào ---
         if (password !== rePassword) {
-            toast.error("Mật khẩu không khớp!", {
-                description: "Vui lòng kiểm tra lại mật khẩu và phần nhập lại mật khẩu."
-            });
+            toast.error("Mật khẩu không khớp!");
             return;
         }
         if (password.length < 6) {
-            toast.error("Mật khẩu quá ngắn", {
-                description: "Mật khẩu của bạn phải có ít nhất 6 ký tự."
-            });
+            toast.error("Mật khẩu phải có ít nhất 6 ký tự.");
             return;
         }
+        // Có thể thêm kiểm tra định dạng số điện thoại ở đây
 
         setIsLoading(true);
 
-        // --- GỌI API ĐĂNG KÝ THẬT SỰ Ở ĐÂY ---
         try {
-            // Chuẩn bị dữ liệu để gửi đi
+            // ⭐ THAY ĐỔI: Chuẩn bị dữ liệu với `phone`
             const userData = {
                 fullName: fullName,
-                email: email,
+                phone: phone,
                 password: password
             };
 
-            // Gọi đến API backend của bạn
-            // Giả sử file PHP của bạn có tên là users.php và nằm trong thư mục /api/
             const response = await fetch('https://nhathuoc.trafficnhanh.com/users.php?action=dang_ky', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(userData),
             });
 
             const result = await response.json();
 
-            // Nếu response không thành công (status code không phải 2xx)
-            if (!response.ok) {
-                // Ném ra lỗi với thông điệp từ backend
+            if (!response.ok || !result.success) {
                 throw new Error(result.error || 'Đã có lỗi xảy ra từ máy chủ.');
             }
 
-            // Nếu thành công
             toast.success("Đăng ký thành công!", {
                 description: `Chào mừng ${fullName}! Bạn sẽ được chuyển đến trang đăng nhập.`,
             });
             
-            // Chuyển hướng người dùng đến trang đăng nhập
             router.push('/dang-nhap');
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
-            // Bắt lỗi (từ network hoặc từ throw new Error ở trên) và hiển thị
             toast.error("Đăng ký thất bại", {
                 description: error.message
             });
         } finally {
-            // Dù thành công hay thất bại, luôn dừng trạng thái loading
             setIsLoading(false);
         }
     };
@@ -96,14 +82,8 @@ export default function StandaloneRegisterPage() {
                     <div className="flex items-center justify-between h-20">
                         <div className="flex items-center">
                             <Link href="/" className="flex items-center">
-                                <Image
-                                src="/images/logo.jpg"
-                                alt="Logo"
-                                width={160}
-                                height={40}
-                                className="object-contain"
-                                />
-                            </Link>                             
+                                <Image src="/images/logo.jpg" alt="Logo" width={160} height={40} className="object-contain" />
+                            </Link> 
                             <h2 className="text-xl ml-4 pl-4 border-l border-gray-300">Đăng ký</h2>
                         </div>
                         <a href="#" className="text-sm text-primary hover:underline">Bạn cần giúp đỡ?</a>
@@ -117,9 +97,7 @@ export default function StandaloneRegisterPage() {
                     
                     {/* Form Đăng ký */}
                     <div className="w-full max-w-md bg-white rounded-md shadow-lg p-8 my-12">
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-semibold">Đăng ký</h3>
-                        </div>
+                        <h3 className="text-xl font-semibold mb-6">Đăng ký</h3>
                         
                         <form onSubmit={handleSubmit}>
                             <div className="space-y-4">
@@ -130,11 +108,12 @@ export default function StandaloneRegisterPage() {
                                         className="p-3 h-12 mt-1" value={fullName} onChange={(e) => setFullName(e.target.value)} disabled={isLoading}
                                     />
                                 </div>
+                                {/* ⭐ THAY ĐỔI: Input cho Số điện thoại */}
                                 <div>
-                                    <Label htmlFor="email">Email</Label>
+                                    <Label htmlFor="phone">Số điện thoại</Label>
                                     <Input
-                                        id="email" type="email" placeholder="email@example.com" required
-                                        className="p-3 h-12 mt-1" value={email} onChange={(e) => setEmail(e.target.value)} disabled={isLoading}
+                                        id="phone" type="tel" placeholder="Số điện thoại của bạn" required
+                                        className="p-3 h-12 mt-1" value={phone} onChange={(e) => setPhone(e.target.value)} disabled={isLoading}
                                     />
                                 </div>
                                 <div className="relative">
@@ -143,12 +122,12 @@ export default function StandaloneRegisterPage() {
                                         id="password" type={showPassword ? "text" : "password"} placeholder="Mật khẩu (ít nhất 6 ký tự)" required
                                         className="p-3 h-12 mt-1" value={password} onChange={(e) => setPassword(e.target.value)} disabled={isLoading}
                                     />
-                                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-[38px] text-muted-foreground">
+                                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-[38px] text-muted-foreground">
                                         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                     </button>
                                 </div>
                                 <div>
-                                     <Label htmlFor="re-password">Nhập lại mật khẩu</Label>
+                                    <Label htmlFor="re-password">Nhập lại mật khẩu</Label>
                                     <Input
                                         id="re-password" type={showPassword ? "text" : "password"} placeholder="Nhập lại mật khẩu của bạn" required
                                         className="p-3 h-12 mt-1" value={rePassword} onChange={(e) => setRePassword(e.target.value)} disabled={isLoading}
@@ -170,7 +149,7 @@ export default function StandaloneRegisterPage() {
                 </div>
             </main>
             
-            {/* Footer của trang đăng ký */}
+            {/* Footer */}
             <footer className="text-center py-8 text-xs text-gray-500 bg-gray-100">
                 <p>&copy; 2025 Nhà Thuốc Nam An. Mọi quyền được bảo lưu.</p>
             </footer>
