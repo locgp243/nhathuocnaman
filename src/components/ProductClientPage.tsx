@@ -1,4 +1,5 @@
 'use client';
+
 import React from 'react';
 import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
@@ -7,6 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from "@/components/ui/input";
 import { Separator } from '@/components/ui/separator';
 import { ChevronRight, Minus, Plus, Star, ShoppingCart, Info, CheckCircle } from "lucide-react";
+import { useCart } from "@/contexts/CartContext"; // Đảm bảo đường dẫn này chính xác
+import { toast } from "sonner";
+import { useRouter } from 'next/navigation';
+
+const DOMAIN = "https://nhathuoc.trafficnhanh.com";
 
 //================================================================//
 // 1. ĐỊNH NGHĨA KIỂU DỮ LIỆU (Bổ sung kiểu cho sản phẩm liên quan)
@@ -319,9 +325,49 @@ const PurchaseCard = ({ product, selectedVariant, quantity, onQuantityChange }: 
     const discountPercent = originalPrice && originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
     const savings = originalPrice && originalPrice > price ? originalPrice - price : 0;
     const isInStock = product.stock_status === 'in_stock';
+    const { addToCart } = useCart();
+    const router = useRouter();
 
-    const handleAddToCart = () => { console.log(`Đã thêm ${quantity} x ${selectedVariant.unit_name} (${product.name}) vào giỏ`); };
-    const handleBuyNow = () => { console.log(`Mua ngay ${quantity} x ${selectedVariant.unit_name} (${product.name})`); };
+     const handleAddToCart = () => {
+         if (!isInStock) return;
+         
+        const primaryImage = product.images?.find(img => img.is_primary === 1) || product.images?.[0];
+        // Đảm bảo image không bao giờ là null/undefined để khớp với interface CartItem
+        const imageUrl = primaryImage ? `${DOMAIN}${primaryImage.image_url}` : '/placeholder-image.png';
+
+        addToCart({
+            productId: String(product.id),
+            variantId: String(selectedVariant.id),
+            name: product.name,
+            image: imageUrl,
+            price: price,
+            quantity: quantity,
+            type: selectedVariant.unit_name,
+        });
+        toast.success(`Đã thêm ${quantity} "${product.name}" vào giỏ hàng.`);
+    };
+
+    const handleBuyNow = () => {
+        if (!isInStock) return;
+        
+        const primaryImage = product.images?.find(img => img.is_primary === 1) || product.images?.[0];
+        // Đảm bảo image không bao giờ là null/undefined để khớp với interface CartItem
+        const imageUrl = primaryImage ? `${DOMAIN}${primaryImage.image_url}` : '/placeholder-image.png';
+
+        // Thêm sản phẩm vào giỏ...
+        addToCart({
+            productId: String(product.id),
+            variantId: String(selectedVariant.id),
+            name: product.name,
+            image: imageUrl,
+            price: price,
+            quantity: quantity,
+            type: selectedVariant.unit_name,
+        });
+
+        // ...và ngay lập tức chuyển đến trang thanh toán
+        router.push('/thanh-toan');
+    };
 
     return (
         <>
@@ -353,8 +399,8 @@ const PurchaseCard = ({ product, selectedVariant, quantity, onQuantityChange }: 
                     </div>
                 )}
                 <div className="flex flex-col gap-3 mt-4">
-                    <Button size="lg" className="w-full h-12 text-lg font-semibold" onClick={handleBuyNow} disabled={!isInStock}>Mua ngay</Button>
-                    <Button variant="outline" size="lg" className="w-full h-12 text-lg font-semibold flex items-center gap-2" onClick={handleAddToCart} disabled={!isInStock}>
+                    <Button size="lg" className="w-full h-12 text-lg font-semibold cursor-pointer" onClick={handleBuyNow} disabled={!isInStock}>Mua ngay</Button>
+                    <Button variant="outline" size="lg" className="cursor-pointer w-full h-12 text-lg font-semibold flex items-center gap-2" onClick={handleAddToCart} disabled={!isInStock}>
                         <ShoppingCart className="h-5 w-5" />
                         Thêm vào giỏ hàng
                     </Button>

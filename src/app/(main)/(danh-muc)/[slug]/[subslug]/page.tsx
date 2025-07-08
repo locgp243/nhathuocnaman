@@ -88,7 +88,7 @@ function ProductCard({ product }: { product: Product }) {
         const imageUrl = primaryImage ? `https://nhathuoc.trafficnhanh.com${primaryImage.image_url}` : "";
 
         addToCart({
-            productId: product.id,
+            productId: String(product.id),
             variantId: String(selectedVariant.id),
             name: product.name,
             image: imageUrl,
