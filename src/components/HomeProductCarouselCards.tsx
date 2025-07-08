@@ -175,7 +175,7 @@ export default function HomeProductCarouselCards({ mainCategorySlug, title }: Pr
         <div className="max-w-7xl mx-auto px-4 py-6">
             <div className="flex flex-col md:flex-row justify-between items-center mb-4">
                 <div className="flex items-center gap-2 mb-4 md:mb-0">
-                    <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
+                    <h2 className="text-primary text-2xl font-bold tracking-tight">{title}</h2>
                 </div>
                 <Tabs value={selectedSubcategory} onValueChange={(value) => setSelectedSubcategory(value)} className="w-full md:w-auto">
                     <TabsList className="bg-transparent h-auto flex flex-wrap gap-2">
@@ -184,7 +184,7 @@ export default function HomeProductCarouselCards({ mainCategorySlug, title }: Pr
                             <TabsTrigger 
                                 key={subcategory.slug}
                                 value={subcategory.name}
-                                className="bg-[#E5E7EB] text-[#333333] data-[state=active]:bg-[#F43F5E] data-[state=active]:text-white"
+                                className="bg-[#E5E7EB] text-[#333333] data-[state=active]:bg-[#F43F5E] data-[state=active]:text-white cursor-pointer "
                             >
                                 {subcategory.name}
                             </TabsTrigger>
@@ -240,7 +240,7 @@ export default function HomeProductCarouselCards({ mainCategorySlug, title }: Pr
                                                 {product.variants.length > 1 ? (
                                                     <div className="flex flex-wrap gap-1">
                                                         {product.variants.map((variant) => (
-                                                            <Button key={variant.id} variant={selectedTypes[product.id] === variant.unit_name ? "default" : "outline"} size="sm" className={`px-2 py-0 h-8 text-xs ${selectedTypes[product.id] === variant.unit_name ? "bg-rose-500 hover:bg-rose-600 text-white" : "text-gray-700 border-gray-300"}`} onClick={(e) => updateProductType(e, product.id, variant.unit_name)}>{variant.unit_name}</Button>
+                                                            <Button key={variant.id} variant={selectedTypes[product.id] === variant.unit_name ? "default" : "outline"} size="sm" className={`cursor-pointer  px-2 py-0 h-8 text-xs ${selectedTypes[product.id] === variant.unit_name ? "bg-rose-500 hover:bg-rose-600 text-white" : "text-gray-700 border-gray-300"}`} onClick={(e) => updateProductType(e, product.id, variant.unit_name)}>{variant.unit_name}</Button>
                                                         ))}
                                                     </div>
                                                 ) : (product.variants.length === 1 && <div className="text-xs text-gray-500">Loại: {product.variants[0].unit_name}</div>)}
@@ -250,7 +250,7 @@ export default function HomeProductCarouselCards({ mainCategorySlug, title }: Pr
                                                 {discount > 0 && <p className="text-gray-500 text-sm line-through">{formatPrice(selectedVariant?.original_price || 0)}₫</p> }
                                             </div>
                                             {/* THAY ĐỔI: onClick đã được cập nhật để truyền cả event và product */}
-                                            <Button onClick={(e) => handleAddToCart(e, product)} size="sm" className="w-full mt-3 bg-rose-500 hover:bg-rose-600 text-white">Thêm Giỏ Hàng</Button>
+                                            <Button onClick={(e) => handleAddToCart(e, product)} size="sm" className="w-full mt-3 bg-rose-500 hover:bg-rose-600 text-white cursor-pointer ">Thêm Giỏ Hàng</Button>
                                         </CardContent>
                                     </Card>
                                 </CarouselItem>

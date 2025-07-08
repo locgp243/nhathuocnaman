@@ -43,7 +43,6 @@ export default function SiteFooter() {
           <div>
             <h3 className="text-sm font-bold text-white mb-4 uppercase tracking-wider">Hệ thống nhà thuốc</h3>
             <ul className="space-y-3">
-              <li><Link href="#" className="text-sm text-white/90 transition-all hover:underline">Hệ thống 326 nhà thuốc</Link></li>
               <li><Link href="#" className="text-sm text-white/90 transition-all hover:underline">Nội quy nhà thuốc</Link></li>
               <li><Link href="#" className="text-sm text-white/90 transition-all hover:underline">Chất lượng phục vụ</Link></li>
               <li><Link href="#" className="text-sm text-white/90 transition-all hover:underline">Chính sách đổi trả, bảo hành</Link></li>
@@ -70,7 +69,6 @@ export default function SiteFooter() {
               <li><Link href="#" className="text-sm text-white/90 transition-all hover:underline">Giới thiệu công ty</Link></li>
               <li><Link href="#" className="text-sm text-white/90 transition-all hover:underline">Ban Điều Hành</Link></li>
               <li><Link href="#" className="text-sm text-white/90 transition-all hover:underline">Chính sách xử lý cá nhân</Link></li>
-              <li><Link href="#" className="text-sm text-white/90 transition-all hover:underline">Đăng ký bán hàng CTV</Link></li>
             </ul>
           </div>
         </div>

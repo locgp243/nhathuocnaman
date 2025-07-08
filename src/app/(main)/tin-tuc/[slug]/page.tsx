@@ -9,7 +9,8 @@ import { Search } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import type { Post, PostCategory } from "@/types/ArticleCard" // Đảm bảo đường dẫn đúng
 import { API_BASE_URL } from "@/lib/api"
-
+import { useRouter } from "next/navigation" // ⭐ BƯỚC 1: IMPORT useRouter
+import { Button } from "@/components/ui/button"
 // ===================================================================
 // HÀM HELPER ĐỂ TẠO MÀU (Được đặt trực tiếp trong file này)
 // ===================================================================
@@ -87,6 +88,9 @@ export default function HealthCornerPage() {
   const [sidebarCategories, setSidebarCategories] = useState<PostCategory[]>([]);
   const [sidebarFeatured, setSidebarFeatured] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter()
+  const [searchTerm, setSearchTerm] = useState("");
+
 
     const fetchAndParsePosts = async (response: Response): Promise<Post[]> => {
         if (!response.ok) return [];
@@ -142,6 +146,14 @@ export default function HealthCornerPage() {
         };
         fetchData();
     }, []);
+  
+  const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault(); // Ngăn form reload lại trang
+        if (searchTerm.trim()) {
+            router.push(`/tim-kiem-bai-viet?q=${encodeURIComponent(searchTerm)}`);
+        }
+  };
+  
   if (isLoading) {
       return <div className="container mx-auto px-4 py-4 text-center">Đang tải dữ liệu...</div>;
   }
@@ -163,16 +175,24 @@ export default function HealthCornerPage() {
       <div className="container mx-auto px-4 py-4">
         {/* Search Bar & Tabs */}
         <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
-          <div className="flex items-center space-x-6">
-            <Link href="/" className="flex items-center text-primary font-medium">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-              <span>Bài viết nổi bật</span>
-            </Link>
-            <div className="flex-1 relative ml-auto">
-              <Input type="text" placeholder="Tìm kiếm bài viết..." className="pl-10"/>
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-            </div>
-          </div>
+            <form onSubmit={handleSearch} className="flex items-center space-x-6">
+                <Link href="/tin-tuc" className="flex items-center text-primary font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                    <span>Bài viết nổi bật</span>
+                </Link>
+                <div className="flex-1 relative ml-auto">
+                    <Input 
+                        type="text" 
+                        placeholder="Tìm kiếm bài viết..." 
+                        className="pl-10"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                </div>
+                {/* Có thể thêm nút submit nếu muốn */}
+                <Button type="submit">Tìm kiếm</Button>
+            </form>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

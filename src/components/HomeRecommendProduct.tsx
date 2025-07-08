@@ -230,7 +230,7 @@ export default function HomeRecommendProducts({
                             {product.availableTypes && product.availableTypes.length > 1 ? (
                                 <div className="flex flex-wrap gap-1">
                                     {product.availableTypes.map((type) => (
-                                        <Button key={`${product.id}-${type}`} variant={selectedTypes[product.id] === type ? "default" : "outline"} size="sm" className={`px-2 py-0 h-8 text-xs ${selectedTypes[product.id] === type ? "bg-rose-500 hover:bg-rose-600 text-white" : "text-gray-700 border-gray-300"}`} onClick={(e) => handleTypeChange(e, product.id, type)}>{type}</Button>
+                                        <Button key={`${product.id}-${type}`} variant={selectedTypes[product.id] === type ? "default" : "outline"} size="sm" className={`cursor-pointer px-2 py-0 h-8 text-xs ${selectedTypes[product.id] === type ? "bg-rose-500 hover:bg-rose-600 text-white" : "text-gray-700 border-gray-300"}`} onClick={(e) => handleTypeChange(e, product.id, type)}>{type}</Button>
                                     ))}
                                 </div>
                             ) : product.availableTypes && product.availableTypes.length === 1 ? <div className="text-xs text-gray-500">{product.availableTypes[0]}</div> : null}
@@ -240,7 +240,7 @@ export default function HomeRecommendProducts({
                             {(typeof originalPrice === 'number' && typeof discountedPrice === 'number' && originalPrice > discountedPrice) && (<p className="text-gray-500 text-sm line-through">{formatPrice(originalPrice)}₫</p>)}
                         </div>
                     </div>
-                    <Button size="sm" className="w-full mt-3 bg-rose-500 hover:bg-rose-600 text-white" onClick={(e) => handleAddToCart(e, product)}>Thêm Giỏ Hàng</Button>
+                    <Button size="sm" className="w-full mt-3 bg-rose-500 hover:bg-rose-600 text-white cursor-pointer" onClick={(e) => handleAddToCart(e, product)}>Thêm Giỏ Hàng</Button>
                 </CardContent>
             </Card>
         );
@@ -248,9 +248,9 @@ export default function HomeRecommendProducts({
     
     return (
         <div className="max-w-7xl mx-auto px-4 py-6">
-            <div className="rounded-lg">
+            <div className="bg-primary rounded-lg text-[#FFFFFF] p-4 shadow-lg animate-bg-flow animate-bg-shimmer">
                 <div className="flex items-center gap-2 mb-4">
-                    <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
+                    <h2 className="text-2xl font-bold tracking-tight animate-sparkle">{title}</h2>
                 </div>
                 
                 {isLoading ? (
@@ -266,8 +266,8 @@ export default function HomeRecommendProducts({
                         </CarouselContent>
                          {products.length > 5 && (
                              <>
-                                <CarouselPrevious className="absolute left-[-1rem] hidden md:inline-flex" />
-                                <CarouselNext className="absolute right-[-1rem] hidden md:inline-flex" />
+                                <CarouselPrevious className="cursor-pointer absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#F43F5E] text-[#FFFFFF] shadow-md flex items-center justify-center hover:bg-[#E11D48]" />
+                                <CarouselNext className="cursor-pointer absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#F43F5E] text-[#FFFFFF] shadow-md flex items-center justify-center hover:bg-[#E11D48]" />
                              </>
                          )}
                     </Carousel>

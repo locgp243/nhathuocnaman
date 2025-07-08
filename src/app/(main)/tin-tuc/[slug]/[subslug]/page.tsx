@@ -2,7 +2,7 @@
 
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
@@ -186,90 +186,141 @@ export default function CategoryPage() {
   const [featuredArticles, setFeaturedArticles] = useState<Post[]>([]);
   const [relatedCategories, setRelatedCategories] = useState<PostCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // Giá trị input search
+  const [activeSearchTerm, setActiveSearchTerm] = useState(""); // Giá trị thực sự được search
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalArticles, setTotalArticles] = useState(0);
-  
+  const [titleBreadcrumb, setTitleBreadcrumb] = useState("");
+
   const articlesPerPage = 12;
 
   // Fetch dữ liệu danh mục và bài viết
-  useEffect(() => {
-    const fetchCategoryData = async () => {
-      if (!categorySlug) return;
+  const fetchCategoryData = useCallback(async () => {
+    if (!categorySlug) return;
+    
+    try {
+      setIsLoading(true);
       
-      try {
-        setIsLoading(true);
-        
-        const [categoryRes, articlesRes, featuredRes, relatedRes] = await Promise.all([
-          // Lấy thông tin danh mục
-          fetch(`${API_BASE_URL}/categories.php?action=doc_danh_muc_by_slug&slug=${categorySlug}`),
-          // Lấy bài viết theo danh mục với phân trang
-          fetch(`${API_BASE_URL}/posts.php?action=doc_tat_ca&category_slug=${categorySlug}&page=${currentPage}&limit=${articlesPerPage}&search=${searchTerm}`),
-          // Lấy bài viết nổi bật
-          fetch(`${API_BASE_URL}/posts.php?action=doc_tat_ca&featured=true&limit=5`),
-          // Lấy các danh mục liên quan
-          fetch(`${API_BASE_URL}/categories.php?action=doc_danh_muc_bai_viet&limit=8`)
-        ]);
+      const [categoryRes, articlesRes, featuredRes, relatedRes] = await Promise.all([
+        // Lấy thông tin danh mục
+        fetch(`${API_BASE_URL}/categories.php?action=doc_danh_muc_by_slug&slug=${categorySlug}`),
+        // Lấy bài viết theo danh mục với phân trang - SỬ DỤNG activeSearchTerm
+        fetch(`${API_BASE_URL}/posts.php?action=doc_tat_ca&category_slug=${categorySlug}&page=${currentPage}&limit=${articlesPerPage}&search=${activeSearchTerm}`),
+        // Lấy bài viết nổi bật
+        fetch(`${API_BASE_URL}/posts.php?action=doc_tat_ca&featured=true&limit=5`),
+        // Lấy các danh mục liên quan
+        fetch(`${API_BASE_URL}/categories.php?action=doc_danh_muc_bai_viet&limit=8`)
+      ]);
 
-        // Xử lý response danh mục
-        const categoryData = await categoryRes.json();
-        setCategory(categoryData);
+      // Xử lý response danh mục
+      const categoryData = await categoryRes.json();
+      setCategory(categoryData);
 
-        // Xử lý response bài viết chính
-        const articlesData = await articlesRes.json();
-        console.log('Articles API Response:', articlesData); // Debug log
-        
-        if (articlesData.success && Array.isArray(articlesData.data)) {
-          setArticles(articlesData.data);
-          setTotalArticles(articlesData.total || 0);
-          setTotalPages(Math.ceil((articlesData.total || 0) / articlesPerPage));
-        } else {
-          // Fallback cho format cũ
-          const articlesArray = articlesData.data || articlesData || [];
-          setArticles(Array.isArray(articlesArray) ? articlesArray : []);
-          setTotalArticles(articlesData.total || articlesArray.length || 0);
-          setTotalPages(Math.ceil((articlesData.total || articlesArray.length || 0) / articlesPerPage));
-        }
-
-        // Xử lý response bài viết nổi bật
-        const featuredData = await featuredRes.json();
-        if (featuredData.success && Array.isArray(featuredData.data)) {
-          setFeaturedArticles(featuredData.data);
-        } else {
-          const featuredArray = featuredData.data || featuredData || [];
-          setFeaturedArticles(Array.isArray(featuredArray) ? featuredArray : []);
-        }
-
-        // Xử lý response danh mục liên quan
-        const relatedData = await relatedRes.json();
-        if (relatedData.success && Array.isArray(relatedData.data)) {
-          setRelatedCategories(relatedData.data);
-        } else {
-          const relatedArray = relatedData.data || relatedData || [];
-          setRelatedCategories(Array.isArray(relatedArray) ? relatedArray : []);
-        }
-
-      } catch (error) {
-        console.error("Lỗi khi tải dữ liệu danh mục:", error);
-        // Reset state khi có lỗi
-        setArticles([]);
-        setFeaturedArticles([]);
-        setRelatedCategories([]);
-        setTotalArticles(0);
-        setTotalPages(1);
-      } finally {
-        setIsLoading(false);
+      // Xử lý response bài viết chính
+      const articlesData = await articlesRes.json();
+      console.log('Articles API Response:', articlesData); // Debug log
+      
+      if (articlesData.success && Array.isArray(articlesData.data)) {
+        setArticles(articlesData.data);
+        setTotalArticles(articlesData.total || 0);
+        setTotalPages(Math.ceil((articlesData.total || 0) / articlesPerPage));
+      } else {
+        // Fallback cho format cũ
+        const articlesArray = articlesData.data || articlesData || [];
+        setArticles(Array.isArray(articlesArray) ? articlesArray : []);
+        setTotalArticles(articlesData.total || articlesArray.length || 0);
+        setTotalPages(Math.ceil((articlesData.total || articlesArray.length || 0) / articlesPerPage));
       }
-    };
 
+      // Xử lý response bài viết nổi bật
+      const featuredData = await featuredRes.json();
+      if (featuredData.success && Array.isArray(featuredData.data)) {
+        setFeaturedArticles(featuredData.data);
+      } else {
+        const featuredArray = featuredData.data || featuredData || [];
+        setFeaturedArticles(Array.isArray(featuredArray) ? featuredArray : []);
+      }
+
+      // Xử lý response danh mục liên quan
+      const relatedData = await relatedRes.json();
+      
+        // Bước 1: Log dữ liệu thô nhận được
+        console.log("1. URL Params:", params);
+        console.log("2. Dữ liệu danh mục liên quan từ API:", relatedData);
+        
+        // Lấy slug của danh mục cha (cấp 1) từ URL
+        const parentCategorySlug = params?.subslug as string;
+        
+        if (Array.isArray(relatedData)) {
+            const relatedCategoriesArray = relatedData;
+            setRelatedCategories(relatedCategoriesArray); // Cập nhật state cho sidebar
+
+            console.log("3. Dữ liệu đã trích xuất để tìm kiếm:");
+            console.log("   - Slug của danh mục cha cần tìm:", parentCategorySlug);
+            console.log("   - Mảng danh mục sẽ tìm trong đó:", relatedCategoriesArray);
+
+            // Bước 2: Dùng .find() để tìm danh mục có slug khớp với slug của danh mục cha
+            const matchedCategory = relatedCategoriesArray.find(
+                (cat: PostCategory) => cat.slug === parentCategorySlug
+            );
+
+            console.log("4. Kết quả tìm kiếm:", matchedCategory);
+
+            // Bước 3: Nếu tìm thấy, cập nhật state của title
+            if (matchedCategory) {
+                setTitleBreadcrumb(matchedCategory.title);
+                console.log(`5. SUCCESS: Đã cập nhật titleBreadcrumb thành "${matchedCategory.title}"`);
+            } else {
+                console.log("5. FAILED: Không tìm thấy danh mục cha nào khớp.");
+            }
+        }
+        console.log("--- KẾT THÚC DEBUG BREADCRUMB ---");
+      
+      if (relatedData.success && Array.isArray(relatedData.data)) {
+        setRelatedCategories(relatedData.data);
+      } else {
+        const relatedArray = relatedData.data || relatedData || [];
+        setRelatedCategories(Array.isArray(relatedArray) ? relatedArray : []);
+      }
+
+    } catch (error) {
+      console.error("Lỗi khi tải dữ liệu danh mục:", error);
+      // Reset state khi có lỗi
+      setArticles([]);
+      setFeaturedArticles([]);
+      setRelatedCategories([]);
+      setTotalArticles(0);
+      setTotalPages(1);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [categorySlug, currentPage, activeSearchTerm]); // CHỈ dùng activeSearchTerm
+
+  // Effect chỉ chạy khi categorySlug, currentPage, hoặc activeSearchTerm thay đổi
+  useEffect(() => {
     fetchCategoryData();
-  }, [categorySlug, currentPage, searchTerm]);
+  }, [fetchCategoryData]);
 
   // Xử lý tìm kiếm
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setCurrentPage(1); // Reset về trang đầu khi tìm kiếm
+    e.preventDefault(); // Ngăn form reload lại trang
+    
+    if (searchTerm.trim()) {
+      // Nếu có search term, chuyển đến trang tìm kiếm
+      router.push(`/tim-kiem-bai-viet?q=${encodeURIComponent(searchTerm)}`);
+    } else {
+      // Nếu không có search term, thực hiện tìm kiếm trong danh mục hiện tại
+      setActiveSearchTerm(searchTerm.trim());
+      setCurrentPage(1); // Reset về trang 1
+    }
+  };
+
+  // Xử lý xóa tìm kiếm
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setActiveSearchTerm("");
+    setCurrentPage(1);
   };
 
   // Xử lý thay đổi trang
@@ -317,9 +368,8 @@ export default function CategoryPage() {
             <span className="mx-2">/</span>
             <Link href="/" className="hover:text-primary">Bệnh và góc sức khỏe</Link>
             <span className="mx-2">/</span>
-            <Link href="/goc-suc-khoe" className="hover:text-primary">Góc sức khỏe</Link>
-            <span className="mx-2">/</span>
-            <span className="font-medium text-primary">{category.title}</span>
+            <Link href="/goc-suc-khoe" className="hover:text-primary">{titleBreadcrumb }</Link>
+            <span className="font-medium text-primary">{}</span>
           </div>
         </div>
       </div>
@@ -340,6 +390,7 @@ export default function CategoryPage() {
                 <h1 className="text-2xl font-bold text-gray-800">{category.title}</h1>
                 <p className="text-gray-600 mt-1">
                   {totalArticles} bài viết trong danh mục này
+                  {activeSearchTerm && ` - Tìm kiếm: "${activeSearchTerm}"`}
                 </p>
               </div>
             </div>
@@ -361,18 +412,33 @@ export default function CategoryPage() {
       <div className="container mx-auto px-4 py-6">
         {/* Search Bar */}
         <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
-          <form onSubmit={handleSearch} className="flex items-center space-x-4">
-            <div className="flex-1 relative">
-              <Input
-                type="text"
-                placeholder={`Tìm kiếm trong ${category.title}...`}
+          <form onSubmit={handleSearch} className="flex items-center space-x-6">
+            <Link href="/tin-tuc" className="flex items-center text-primary font-medium">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+              <span>Bài viết nổi bật</span>
+            </Link>
+            <div className="flex-1 relative ml-auto">
+              <Input 
+                type="text" 
+                placeholder="Tìm kiếm bài viết..." 
+                className="pl-10"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
               />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
             </div>
             <Button type="submit">Tìm kiếm</Button>
+            {activeSearchTerm && (
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={handleClearSearch}
+              >
+                Xóa tìm kiếm
+              </Button>
+            )}
           </form>
         </div>
 
@@ -401,18 +467,15 @@ export default function CategoryPage() {
                 <div className="text-gray-500 mb-4">
                   <Search className="w-12 h-12 mx-auto mb-2" />
                   <h3 className="text-lg font-medium">
-                    {searchTerm ? `Không tìm thấy bài viết nào với từ khóa "${searchTerm}"` : 'Chưa có bài viết nào trong danh mục này'}
+                    {activeSearchTerm ? `Không tìm thấy bài viết nào với từ khóa "${activeSearchTerm}"` : 'Chưa có bài viết nào trong danh mục này'}
                   </h3>
                   <p className="text-sm mt-2">
-                    {searchTerm ? 'Hãy thử tìm kiếm với từ khóa khác' : 'Vui lòng quay lại sau'}
+                    {activeSearchTerm ? 'Hãy thử tìm kiếm với từ khóa khác' : 'Vui lòng quay lại sau'}
                   </p>
                 </div>
-                {searchTerm && (
+                {activeSearchTerm && (
                   <Button
-                    onClick={() => {
-                      setSearchTerm("");
-                      setCurrentPage(1);
-                    }}
+                    onClick={handleClearSearch}
                     variant="outline"
                   >
                     Xóa tìm kiếm

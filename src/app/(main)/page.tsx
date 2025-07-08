@@ -9,9 +9,9 @@ export default function Home() {
   return (
     <>
         <HomeBanner />
+        <HomeRecommendProducts />
         <HomeHotSaleProducts />
         <HomeSubCategories />
-        <HomeRecommendProducts />
         <HomeProductCarouselCards
           mainCategorySlug="thuc-pham-chuc-nang"
           title="THỰC PHẨM CHỨC NĂNG"

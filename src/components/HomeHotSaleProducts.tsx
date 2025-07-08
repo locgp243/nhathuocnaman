@@ -173,7 +173,7 @@ export default function HomeHotSaleProducts() {
                             <div className="flex flex-wrap gap-1">
                                 {product.variants.map((variant) => (
                                     <Button key={variant.id} variant={selectedTypes[product.id] === variant.unit_name ? "default" : "outline"} size="sm"
-                                        className={`px-2 py-0 h-8 text-xs ${selectedTypes[product.id] === variant.unit_name ? "bg-rose-500 hover:bg-rose-600 text-white" : "text-gray-700 border-gray-300"}`}
+                                        className={`cursor-pointer px-2 py-0 h-8 text-xs ${selectedTypes[product.id] === variant.unit_name ? "bg-rose-500 hover:bg-rose-600 text-white" : "text-gray-700 border-gray-300"}`}
                                         onClick={(e) => handleTypeChange(e, product.id, variant.unit_name)}
                                     >{variant.unit_name}</Button>
                                 ))}
@@ -187,7 +187,7 @@ export default function HomeHotSaleProducts() {
                         <p className="text-[#F43F5E] font-bold text-base">{formatPrice(discountedPrice)}₫</p>
                         {originalPrice > discountedPrice && <p className="text-[#AAAAAA] text-xs line-through">{formatPrice(originalPrice)}₫</p>}
                     </div>
-                    <Button size="sm" className="w-full mt-3 bg-[#F43F5E] hover:bg-[#E11D48] text-[#FFFFFF]"
+                    <Button size="sm" className="cursor-pointer w-full mt-3 bg-[#F43F5E] hover:bg-[#E11D48] text-[#FFFFFF]"
                         onClick={(e) => handleAddToCart(e, product)}
                     >Thêm Giỏ Hàng</Button>
                 </CardContent>
@@ -197,20 +197,20 @@ export default function HomeHotSaleProducts() {
     
     return (
         <div className="max-w-7xl mx-auto px-2 sm:px-4 py-8">
-            <div className="bg-primary text-[#FFFFFF] p-4 rounded-lg shadow-lg">
+            <div className="bg-primary text-[#FFFFFF] p-4 rounded-lg shadow-lg animate-bg-flow animate-bg-shimmer">
                 <div className="flex flex-col md:flex-row justify-between items-center mb-4">
                     <div className="flex items-center gap-2 mb-4 md:mb-0">
                         <div className="bg-[#FFFFFF] rounded-full p-1 sm:p-2">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="#F43F5E" /><path d="M12.5 7H11V13L16.2 16.2L17 14.9L12.5 12.2V7Z" fill="#F43F5E" /></svg>
                         </div>
-                        <h2 className="text-accent text-xl sm:text-2xl font-bold tracking-tight">HOT SALE</h2>
-                        <span className="text-xl sm:text-2xl font-bold tracking-tight text-[#FFFFFF]">CUỐI TUẦN</span>
+                        <h2 className="text-accent text-xl sm:text-2xl font-bold tracking-tight animate-sparkle">HOT SALE</h2>
+                        <span className="text-xl sm:text-2xl font-bold tracking-tight text-[#FFFFFF] animate-sparkle">CUỐI TUẦN</span>
                     </div>
                     <Tabs value={selectedCategorySlug} onValueChange={setSelectedCategorySlug} className="w-full md:w-auto">
                         <TabsList className="bg-transparent h-auto flex flex-wrap gap-1 sm:gap-2 justify-center md:justify-end">
                             <TabsTrigger value="all" className="text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-1.5 bg-secondary text-[#FFFFFF] data-[state=active]:bg-[#F43F5E] data-[state=active]:text-[#FFFFFF] rounded">Tất cả</TabsTrigger>
                             {subcategories.slice(0, 5).map((category) => (
-                                <TabsTrigger key={category.slug} value={category.slug} className="text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-1.5 bg-secondary text-[#FFFFFF] data-[state=active]:bg-[#F43F5E] data-[state=active]:text-[#FFFFFF] rounded">{category.name}</TabsTrigger>
+                                <TabsTrigger key={category.slug} value={category.slug} className="cursor-pointer text-xs sm:text-sm px-2 py-1 sm:px-3 sm:py-1.5 bg-secondary text-[#FFFFFF] data-[state=active]:bg-[#F43F5E] data-[state=active]:text-[#FFFFFF] rounded">{category.name}</TabsTrigger>
                             ))}
                         </TabsList>
                     </Tabs>
