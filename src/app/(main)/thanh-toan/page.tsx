@@ -318,7 +318,8 @@ export default function CheckoutPage() {
                         <Card>
                             <CardHeader><CardTitle>4. Thông tin bổ sung</CardTitle></CardHeader>
                             <CardContent className="pt-6">
-                                <div><Label htmlFor="notes">Ghi chú (Tùy chọn)</Label><Textarea id="notes" name="notes" placeholder="Lưu ý cho người bán..." value={formData.notes} onChange={handleInputChange} /></div>
+                                <div><Label htmlFor="notes">Ghi chú (Tùy chọn)</Label>
+                                    <Textarea className="mt-4" id="notes" name="notes" placeholder="Lưu ý cho người bán..." value={formData.notes} onChange={handleInputChange} /></div>
                             </CardContent>
                         </Card>
                     </div>
@@ -341,7 +342,7 @@ export default function CheckoutPage() {
                                 <div className="flex justify-between"><span>Phí vận chuyển</span><span>{(deliveryMethod === 'delivery' ? 15000 : 0).toLocaleString('vi-VN')}₫</span></div>
                                 <div className="flex justify-between font-bold text-lg border-t pt-2 mt-2"><span>Tổng tiền</span><span className="text-red-600">{(total || 0).toLocaleString('vi-VN')}₫</span></div>
                             </div>
-                            <Button type="submit" className="w-full mt-4 bg-red-500 hover:bg-red-600 text-lg py-6" disabled={isSubmitting || itemCount === 0}>
+                            <Button type="submit" className="w-full mt-4 bg-red-500 hover:bg-red-600 text-lg py-6 cursor-pointer" disabled={isSubmitting || itemCount === 0}>
                                 {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                                 {isSubmitting ? 'Đang xử lý...' : `Đặt hàng`}
                             </Button>

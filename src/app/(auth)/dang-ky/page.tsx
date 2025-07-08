@@ -135,7 +135,7 @@ export default function StandaloneRegisterPage() {
                                 </div>
                             </div>
 
-                            <Button type="submit" className="w-full bg-primary text-white py-3 h-12 rounded-sm mt-6 hover:bg-orange-600 transition-colors font-semibold" disabled={isLoading}>
+                            <Button type="submit" className="cursor-pointer w-full bg-primary text-white py-3 h-12 rounded-sm mt-6 hover:bg-orange-600 transition-colors font-semibold" disabled={isLoading}>
                                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 ĐĂNG KÝ
                             </Button>

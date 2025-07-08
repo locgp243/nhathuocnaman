@@ -231,7 +231,7 @@ export default function ShoppingCartPage() {
             ) : displayItems.length === 0 ? (
               <div className="text-center py-10 text-gray-500">
                 <p>Giỏ hàng của bạn đang trống.</p>
-                <Button onClick={() => router.push('/')} className="mt-4">Tiếp tục mua sắm</Button>
+                <Button onClick={() => router.push('/')} className="cursor-pointer mt-4">Tiếp tục mua sắm</Button>
               </div>
             ) : (
               displayItems.map((item) => (
@@ -258,7 +258,7 @@ export default function ShoppingCartPage() {
                     </div>
                     <div className="col-span-2 flex items-center justify-end">
                       <span className="font-medium text-red-500 text-sm">{formatPrice(item.price * item.quantity)}₫</span>
-                      <button onClick={() => removeFromCart(item.id)} className="ml-4 text-gray-400 hover:text-red-500" aria-label="Remove item"><Trash2 size={18} /></button>
+                      <button onClick={() => removeFromCart(item.id)} className="ml-4 text-gray-400 hover:text-red-500 curosr-pointer" aria-label="Remove item"><Trash2 className="curosr-pointer" size={18} /></button>
                     </div>
                   </div>
                 </div>
@@ -284,7 +284,7 @@ export default function ShoppingCartPage() {
                   <span>Tổng tiền</span>
                   <span className="text-red-500">{formatPrice(total)}₫</span>
                 </div>
-                <Button onClick={() => router.push("/thanh-toan")} disabled={selectedItems.length === 0} className="w-full mt-4 bg-red-500 hover:bg-red-600 text-white py-3 rounded-md">
+                <Button onClick={() => router.push("/thanh-toan")} disabled={selectedItems.length === 0} className="cursor-pointer w-full mt-4 bg-red-500 hover:bg-red-600 text-white py-3 rounded-md">
                   Mua hàng ({selectedItems.length})
                 </Button>
               </div>

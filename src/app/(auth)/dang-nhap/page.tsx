@@ -131,7 +131,7 @@ export default function StandaloneLoginPage() {
                         <form onSubmit={handleSubmit}>
                             <div className="space-y-4">
                                 <Input
-                                    id="identifier" type="text" placeholder="SĐT" required
+                                    id="identifier" type="text" placeholder="SĐT hoặc Email" required
                                     className="p-3 h-12" value={identifier} onChange={(e) => setIdentifier(e.target.value)} disabled={isLoading}
                                 />
                                 <div className="relative">
@@ -145,7 +145,7 @@ export default function StandaloneLoginPage() {
                                 </div>
                             </div>
 
-                            <Button type="submit" className="w-full bg-primary text-white py-3 h-12 rounded-sm mt-4 hover:bg-orange-600 transition-colors font-semibold" disabled={isLoading}>
+                            <Button type="submit" className="w-full bg-primary text-white py-3 h-12 rounded-sm mt-4 hover:bg-orange-600 transition-colors font-semibold cursor-pointer" disabled={isLoading}>
                                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                 ĐĂNG NHẬP
                             </Button>
@@ -162,10 +162,10 @@ export default function StandaloneLoginPage() {
                         </div>
 
                         <div className="flex items-center justify-around sm:flex-row gap-4">
-                            <Button variant="outline" disabled={isLoading} onClick={() => toast.info("Chức năng đang được phát triển")}>
+                            <Button className="cursor-pointer" variant="outline" disabled={isLoading} onClick={() => toast.info("Chức năng đang được phát triển")}>
                                 <Facebook className="mr-2 h-5 w-5 text-blue-600" /> Facebook
                             </Button>
-                            <Button variant="outline" disabled={isLoading} onClick={() => toast.info("Chức năng đang được phát triển")}>
+                            <Button className="cursor-pointer" variant="outline" disabled={isLoading} onClick={() => toast.info("Chức năng đang được phát triển")}>
                                 <GoogleIcon className="mr-2" /> Google
                             </Button>
                         </div>

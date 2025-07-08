@@ -272,7 +272,7 @@ export default function HomeRecommendProducts({
                          )}
                     </Carousel>
                 ) : (
-                    <div className="w-full text-center py-10 text-gray-500 border-2 border-dashed rounded-lg">
+                    <div className="w-full text-center py-10 text-white border-2 border-dashed rounded-lg">
                         Chưa có sản phẩm gợi ý nào. <br/> Hãy khám phá thêm các danh mục để nhận được gợi ý tốt nhất!
                     </div>
                 )}
