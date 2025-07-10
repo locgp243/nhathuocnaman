@@ -174,7 +174,7 @@ export default function HomeRecommendProducts({
         }
 
         const itemToAdd = {
-            productId: product.id,
+            productId: String(product.id),
             variantId: String(variantInfo.id),
             name: product.name,
             image: product.image,

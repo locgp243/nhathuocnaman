@@ -128,7 +128,7 @@ export default function HomeArticles() {
           .catch((err) => console.error("Lỗi khi tải danh mục:", err));
     }, []);
 
-    useEffect(() => {
+    useEffect(() => {   
         setIsLoading(true);
         let endpoint = `${API_BASE_URL}/posts.php?action=doc_tat_ca&limit=7`;
         
@@ -168,7 +168,7 @@ export default function HomeArticles() {
     return (
         <div className="max-w-7xl mx-auto p-4">
             <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-primary">Góc sức khỏe</h2>
+                <h2 className="text-2xl md:text-2xl font-bold tracking-tight text-primary">GÓC SỨC KHỎE</h2>
                 <Link href="/tin-tuc/benh-va-goc-suc-khoe" className="text-sm font-medium text-primary hover:text-secondary">Xem tất cả</Link>
             </div>
             

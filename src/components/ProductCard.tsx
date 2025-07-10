@@ -82,7 +82,7 @@ const ProductCard: FC<ProductCardProps> = ({ product }) => {
         const imageUrl = primaryImage ? `${API_BASE_URL}${primaryImage.image_url}` : '/placeholder.png';
 
         addToCart({
-            productId: product.id,
+            productId: String(product.id),
             variantId: String(selectedVariant.id),
             name: product.name,
             image: imageUrl,

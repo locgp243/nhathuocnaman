@@ -60,15 +60,15 @@ async function getPostData(slug: string) {
         // Kiểm tra content type trước khi parse JSON
         const contentType = postRes.headers.get('content-type');
         if (!contentType || !contentType.includes('application/json')) {
-            console.error('Response is not JSON:', contentType);
-            const text = await postRes.text();
-            console.error('Response text:', text.substring(0, 500)); // Log 500 ký tự đầu
+            // console.error('Response is not JSON:', contentType);
+            // const text = await postRes.text();
+            // console.error('Response text:', text.substring(0, 500));
             return { post: null, relatedPosts: [] };
         }
 
         const postResult: ApiResponse = await postRes.json();
         if (!postResult.success || !postResult.data) {
-            console.error('API returned unsuccessful response:', postResult);
+            // console.error('API returned unsuccessful response:', postResult);
             return { post: null, relatedPosts: [] };
         }
         const post: PostDetail = postResult.data;
@@ -163,14 +163,18 @@ export default async function PostDetailPage({ params }: { params: Promise<{ slu
                                     fill
                                     className="object-cover"
                                     priority
+                                    sizes="(max-width: 1024px) 100vw, 66vw" 
+
                                 />
                             </div>
                         )}
 
                         <article 
-                            className="prose prose-lg max-w-none prose-img:rounded-lg prose-a:text-primary hover:prose-a:underline"
+                            className="!prose !prose-lg max-w-none !prose-img:rounded-lg !prose-a:text-primary hover:prose-a:underline"
                             dangerouslySetInnerHTML={{ __html: post.content || '' }}
                         />
+
+
                         
                         <Separator className="my-8" />
 

@@ -1,6 +1,18 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+/* ======================================================================== */
+/* BƯỚC 1: BẮT ĐẦU VỚI CÁC CHỈ THỊ CHUẨN CỦA TAILWIND                      */
+/* ======================================================================== */
 
+/* Thay thế cho @import "tailwindcss/preflight" và các import cũ khác. */
+/* Hai dòng này PHẢI LUÔN ở trên cùng. */
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+
+/* ======================================================================== */
+/* BƯỚC 2: TẤT CẢ CÁC TÙY CHỈNH CỦA BẠN ĐẶT SAU ĐÂY                      */
+/* ======================================================================== */
+
+/* Các tính năng nâng cao của Tailwind v4 */
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -9,7 +21,7 @@
   --color-accent: #FFD66B;
   --color-destructive: #F5F5F5;
   
-
+  /* Các alias này không thực sự cần thiết nhưng giữ lại cũng không sao */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -43,6 +55,7 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* Định nghĩa hệ thống màu sắc và biến CSS */
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -112,43 +125,43 @@
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
+/* Các lớp tùy chỉnh trong layer */
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground text-base;
-  }
+  /* QUAN TRỌNG: Không định nghĩa 'body' ở đây để tránh phá vỡ layout */
 }
-
 
 @layer utilities {
   .animate-marquee {
     animation: marquee 20s linear infinite;
   }
-
-  @keyframes marquee {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
-  }
+  
+  /* Đã dọn dẹp các keyframes và class thừa, trùng lặp ở dưới */
 }
 
-body{
-  background-color: #F5F5F5;
+/* ======================================================================== */
+/* BƯỚC 3: GIẢI PHÁP CHO BODY (ĐẶT Ở GẦN CUỐI)                            */
+/* ======================================================================== */
+/* Cách này đảm bảo layout không bị vỡ và @apply hoạt động bình thường */
+body {
+  @apply bg-background text-foreground;
+  /* Nếu em muốn font chữ mặc định là text-base, hãy thêm dòng sau: */
+  /* font-size: 1rem; line-height: 1.5rem; */
 }
+
+
+/* ======================================================================== */
+/* BƯỚC 4: CÁC TIỆN ÍCH VÀ ANIMATION TÙY CHỈNH                             */
+/* ======================================================================== */
 
 .your-custom-scroll {
   -ms-overflow-style: none; /* IE/Edge */
   scrollbar-width: none; /* Firefox */
 }
-
 .your-custom-scroll::-webkit-scrollbar {
   display: none; /* Chrome, Safari */
-}
-
-@keyframes sparkle {
-  0%, 100% { text-shadow: 0 0 0px #FFD66B; } /* Màu accent */
-  50% { text-shadow: 0 0 10px #FFD66B, 0 0 20px rgba(255, 214, 107, 0.8); }
 }
 
 .animate-sparkle {
@@ -156,66 +169,62 @@ body{
 }
 .animate-bg-shimmer {
   position: relative;
-  overflow: hidden; /* Vẫn giữ overflow: hidden để vệt sáng không tràn ra ngoài */
+  overflow: hidden;
 }
-
 .animate-bg-shimmer::after {
   content: '';
   position: absolute;
   top: 0;
-  left: 0; /* Sẽ được điều khiển bởi transform */
-  width: 60%; /* Độ rộng của vệt sáng */
+  left: 0;
+  width: 60%;
   height: 100%;
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.25), /* Màu vệt sáng - bạn có thể thay đổi */
+    rgba(255, 255, 255, 0.25),
     transparent
   );
-  transform: translateX(-100%) skewX(-25deg); /* Bắt đầu ngoài màn hình bên trái và nghiêng */
-  animation: shimmer-effect 3s infinite linear; /* Thời gian, lặp lại, kiểu chuyển động */
-  pointer-events: none; /* Quan trọng: Thêm dòng này! */
+  transform: translateX(-100%) skewX(-25deg);
+  animation: shimmer-effect 3s infinite linear;
+  pointer-events: none;
 }
-
-/* Bạn cũng cần định nghĩa keyframes nếu chưa có */
-@keyframes shimmer-effect {
-  0% {
-    transform: translateX(-100%) skewX(-25deg);
-  }
-  100% {
-    transform: translateX(200%) skewX(-25deg); /* Di chuyển qua phải, đủ xa để quét hết phần tử */
-  }
-}
-
-@keyframes shimmer-effect {
-  0% {
-    transform: translateX(-100%) skewX(-25deg);
-  }
-  100% {
-    transform: translateX(220%) skewX(-25deg); /* Đảm bảo vệt sáng chạy hết qua phải */
-  }
-}
-
 .animate-bg-flow {
-  /* Màu bg-primary của bạn có thể đóng vai trò là màu nền dự phòng 
-     nếu CSS tùy chỉnh này không tải được. */
   background: linear-gradient(
-    135deg,    /* Hướng của dải màu - chéo cho cảm giác năng động hơn */
-    #309d94,   /* Màu primary của bạn */
-    #3EBEB4,   /* Một sắc thái teal hơi sáng và rực rỡ hơn một chút */
-    #2A8C82,   /* Một sắc thái teal hơi trầm hơn để tạo chiều sâu */
-    #3EBEB4,   /* Lặp lại màu teal sáng/rực rỡ */
-    #309d94    /* Kết thúc bằng màu primary để giúp vòng lặp mượt mà hơn khi dùng 'alternate' */
+    135deg,
+    #309d94,
+    #3EBEB4,
+    #2A8C82,
+    #3EBEB4,
+    #309d94
   );
-  background-size: 300% 300%; /* Kích thước nền lớn hơn nhiều so với phần tử để có không gian cho chuyển động */
-  animation: flow-effect 12s ease-in-out infinite alternate; /* Tên animation, thời gian, kiểu, lặp vô hạn, đảo chiều */
+  background-size: 300% 300%;
+  animation: flow-effect 12s ease-in-out infinite alternate;
 }
 
+/* Định nghĩa các Keyframes */
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+@keyframes sparkle {
+  0%, 100% { text-shadow: 0 0 0px #FFD66B; }
+  50% { text-shadow: 0 0 10px #FFD66B, 0 0 20px rgba(255, 214, 107, 0.8); }
+}
+/* ĐÃ XÓA 1 KEYFRAME TRÙNG LẶP */
+@keyframes shimmer-effect {
+  0% {
+    transform: translateX(-100%) skewX(-25deg);
+  }
+  100% {
+    transform: translateX(220%) skewX(-25deg);
+  }
+}
 @keyframes flow-effect {
   0% {
-    background-position: 0% 0%; /* Vị trí bắt đầu của nền */
+    background-position: 0% 0%;
   }
   100% {
-    background-position: 100% 100%; /* Vị trí kết thúc của nền, tạo hiệu ứng chéo */
+    background-position: 100% 100%;
   }
 }
+

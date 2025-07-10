@@ -1,3 +1,7 @@
+// tailwind.config.js
+import typography from '@tailwindcss/typography' // ⭐ Dùng import thay cho require
+
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -9,4 +13,5 @@ module.exports = {
   theme: {
     extend: {},
   },
-}
+  plugins: [typography],
+};

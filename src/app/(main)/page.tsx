@@ -1,10 +1,10 @@
-import HomeBanner from "@/components/HomeBanner";
 import HomeSubCategories from "@/components/HomeSubCategories";
 import Service from "@/components/Services";
 import HomeRecommendProducts from "@/components/HomeRecommendProduct";
 import HomeHotSaleProducts from "@/components/HomeHotSaleProducts";
 import HomeProductCarouselCards from "@/components/HomeProductCarouselCards";
 import HomeArticles from "@/components/HomeArticles";
+import HomeBanner from '@/components/cpBanners/HomeBanner';
 export default function Home() {
   return (
     <>
